@@ -1,0 +1,37 @@
+body {
+    font-family: "Montserrat", sans-serif;
+}
+.navbar-kriuk {
+    background-color: #59a96a;  /* Hijau segar */
+  }
+
+  .navbar-brand, .nav-link {
+    color: white !important;
+  }
+
+  .btn-kuning {
+    background-color: #f4d35e;
+    color: #333;
+    border: none;
+  }
+
+  .btn-kuning:hover {
+    background-color: #e6c645;
+    color: #111;
+  }
+
+  .btn-merah {
+    background-color: #e63946;
+    color: white;
+    border: none;
+  }
+
+  .btn-merah:hover {
+    background-color: #c71f2a;
+  }
+
+  .carousel-item img {
+    max-height: 450px; /* atau sesuaikan misalnya 400px, 300px */
+    object-fit: cover;
+    object-position: center;
+  }

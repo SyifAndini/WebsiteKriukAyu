@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pengguna</title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/scss/style.css">
+</head>
+<body>
+    <!-- Bagi dua -->
+     <!-- Modal -->
+      <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    Tambah Pesanan Kriuk
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Tambah Kriuk</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="mb-3">
+                <label for="jenisKriuk" class="form-label">Jenis Kriuk</label>
+                <select name="jenisKriuk" id="jenisKriuk" class="form-control" required>
+                    <option value="" disabled selected>Pilih Jenis Kriuk</option>
+                    <option value="otak-otak">Otak-Otak</option>
+                    <option value="makaroni">Makaroni</option>
+                    <option value="kerupuk-seblak">Kerupuk Seblak</option>
+                    <option value="kerupuk-seblak">Emping Jagung</option>
+                </select>
+                </div>
+                <div class="mb-3">
+                    <label for="rasaKriuk" class="form-label">Rasa Kriuk</label>
+                    <select name="rasaKriuk" id="rasaKriuk" class="form-control" required>
+                        <option value="" disabled selected>Pilih Rasa Kriuk</option>
+                        <option value="jagung-bakar">Jagung Bakar</option>
+                        <option value="pedas-manis">Pedas Manis</option>
+                        <option value="ekstra-pedas">Ekstra Pedas</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="jumlahKriuk" class="form-label">Jumlah Kriuk</label>
+                    <input type="number" class="form-control" id="jumlahKriuk" placeholder="Jumlah Kriuk" required>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-primary">Tambah Kriuk</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

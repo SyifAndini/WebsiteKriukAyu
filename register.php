@@ -88,7 +88,7 @@ $conn->close();
 
             <button type="submit" class="btn login-btn w-100 mb-2" name="daftar">Daftar</button>
             <div class="text-center small-text">
-              Sudah punya akun? <a href="login.html">Masuk disini</a>
+              Sudah punya akun? <a href="login.php">Masuk disini</a>
             </div>
           </form>
         </div>

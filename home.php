@@ -1,15 +1,23 @@
+<?php
+session_start();
+$isLoggedIn = isset($_SESSION['logged_in']) ? $_SESSION['logged_in'] : false;;
+if (isset($_POST['logout'])) {
+    session_unset();
+    session_destroy();
+    header("Location: home.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Kriuk Ayu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/scss/style.css">
+    <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="my_css/style.css">
 </head>
 <body>
     <header>
@@ -17,7 +25,7 @@
         <nav class="navbar navbar-expand-lg navbar-kriuk fixed-top" id="navbar-kriukAyu">
             <div class="container-fluid">
               <a class="navbar-brand" href="#">
-                <img src="/assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" style="height: 40px; width: auto;" class="d-inline-block align-text-top"></a>
+                <img src="assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" style="height: 40px; width: auto;" class="d-inline-block align-text-top"></a>
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -39,10 +47,34 @@
                         <a class="nav-link" href="#tentang">Tentang Kami</a>
                       </li>
                 </ul>
+                <?php if(!$isLoggedIn): ?>
                 <div class="d-flex gap-2 ms-auto">
-                    <button class="btn btn-kuning" onclick="location.href='register.html'">Pesan Sekarang!</button>
-                    <button class="btn btn-merah" onclick="location.href='login.html'">Masuk</button>
+                    <button class="btn btn-kuning" onclick="location.href='register.php'">Pesan Sekarang!</button>
+                    <button class="btn btn-merah" onclick="location.href='login.php'">Masuk</button>
                   </div>
+                <?php else: ?>
+                  <div class="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1" id="userProfile">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" class="rounded-circle">
+                        <span class="d-none d-sm-inline mx-1"><?= $_SESSION['nama_user'] ?? 'Pengguna'?></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                        <li><a class="dropdown-item bi bi-person" href="#">Lihat Profil</a></li>
+                        <li><a class="dropdown-item "href="dashboard.php">Dashboard</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                        <!-- Form Logout dalam Dropdown -->
+                        <form method="post" class="px-3 py-2">
+                            <button type="submit" name="logout" class="btn btn-danger w-100">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                            </button>
+                        </form>
+                        </li>
+                    </ul>
+                </div>
+                <?php endif; ?>
                 </div>
               </div>
             </div>
@@ -51,16 +83,16 @@
     <div data-bs-spy="scroll" data-bs-target="#navbar-kriukAyu" data-bs-smooth-scroll="true" class="scrollspy-example-2" tabindex="0">
         <section id="home">   
             <!-- Carousel Foto Kriuk Ayu -->
-            <div id="carouselExampleFade" class="carousel slide carousel-fade">
+            <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
                 <div class="carousel-inner">
-                  <div class="carousel-item">
-                    <img src="/assets/kriuk-basreng.jpg" class="d-block w-100" alt="...">
+                  <div class="carousel-item active">
+                    <img src="assets/kriuk-basreng.jpg" class="d-block w-100" alt="...">
                   </div>
                   <div class="carousel-item">
-                    <img src="/assets/kriuk-seblak-bungkus.jpg" class="d-block w-100" alt="...">
+                    <img src="assets/kriuk-seblak-bungkus.jpg" class="d-block w-100" alt="...">
                   </div>
                   <div class="carousel-item">
-                    <img src="/assets/otak-otak-jagung.jpg" class="d-block w-100" alt="...">
+                    <img src="assets/otak-otak-jagung.jpg" class="d-block w-100" alt="...">
                   </div>
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
@@ -72,21 +104,21 @@
                   <span class="visually-hidden">Next</span>
                 </button>
               </div>
-            <h2 class="text-center mb-5 fw-bold">Selamat Datang di Kriuk Ayu</h2>
+            <h2 class="text-center mt-5 mb-5 fw-bold">Selamat Datang di Kriuk Ayu</h2>
             <p class="text-center mb-5">Rumahnya aneka kriuk dengan berbagai rasa!</p>
         </section>
         <section id="product">
             <h2 class="text-center mb-5 fw-bold">Aneka Kriuk</h2>
-            <div class="row row-cols-1 row-cols-md-4 g-4">
+            <div class="row row-cols-1 row-cols-md-4 g-4 m-3">
                 <div class="col">
                   <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
-                    <img src="/assets/kriuk-basreng.jpg" class="card-img-top" alt="Kriuk Otak-Otak">
+                    <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="Kriuk Otak-Otak">
                     <div class="card-body">
                       <h5 class="card-title">Otak-Otak</h5>
                       <h6 class="card-subtitle mb-2 text-body-secondary">Rp 7.000</h6>
                       <p class="card-text">Kriuk renyah yang dibuat dari otak-otak dengan metode deep fry.</p>
                       <!-- <div class="row row-cols">
-                        <img src="/assets/corn.png" alt="Corn" class="col-2">
+                        <img src="assets/corn.png" alt="Corn" class="col-2">
                         <span>Jagung Bakar</span>
                       </div> -->
                     </div>
@@ -94,7 +126,7 @@
                 </div>
                 <div class="col">
                     <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
-                      <img src="/assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
+                      <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
                       <div class="card-body">
                         <h5 class="card-title">Makaroni</h5>
                         <h6 class="card-subtitle mb-2 text-body-secondary">Rp 7.000</h6>
@@ -104,7 +136,7 @@
                   </div>
                   <div class="col">
                     <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
-                      <img src="/assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
+                      <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
                       <div class="card-body">
                         <h5 class="card-title">Kerupuk Seblak</h5>
                         <h6 class="card-subtitle mb-2 text-body-secondary">Rp 7.000</h6>
@@ -114,7 +146,7 @@
                   </div>
                   <div class="col">
                     <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
-                      <img src="/assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
+                      <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
                       <div class="card-body">
                         <h5 class="card-title">Emping Jagung</h5>
                         <h6 class="card-subtitle mb-2 text-body-secondary">Rp 7.000</h6>
@@ -134,7 +166,7 @@
                     <li>Tunggu konfirmasi dari kami.</li>
                 </ol>
         </section>
-        <section class="py-5 bg-light" id="review">
+        <section class="py-5 bg-warning bg-opacity-25" id="review">
             <div class="container">
               <h2 class="text-center mb-5 fw-bold">Apa kata mereka?</h2>
               <div class="row g-4">
@@ -224,7 +256,7 @@
           <h2 class="text-center fw-bold mb-5">Tentang Kriuk Ayu</h2>
           <div class="row align-items-center">
             <div class="col-md-6 text-center">
-              <img src="assets/proses-kriuk.jpg" alt="Foto Proses Pembuatan" class="img-fluid rounded shadow-sm mb-4" style="max-height: 300px;">
+              <img src="assets/otak-otak-jagung.jpg" alt="Foto Proses Pembuatan" class="img-fluid rounded shadow-sm mb-4" style="max-height: 300px;">
             </div>
             <div class="col-md-6">
               <p>
@@ -233,7 +265,7 @@
                 camilan yang renyah, terjangkau, dan memiliki cita rasa khas Indonesia, Kriuk Ayu dikembangkan dengan mengutamakan
                 kualitas bahan baku serta proses produksi yang higienis.
               </p>
-              <a href="https://wa.me/6285882514744" target="_blank" class="btn btn-outline-dark mt-3">
+              <a href="https://wa.me/6285882514744" target="_blank" class="btn btn-kuning mt-3">
                 <i class="bi bi-whatsapp me-2"></i>Hubungi Kami
               </a>
             </div>
@@ -242,12 +274,12 @@
       </section>
       
       <!-- Sosok Dibalik Kriuk Ayu -->
-      <section class="bg-light py-5">
+      <section class="bg-success bg-opacity-25 py-5">
         <div class="container">
           <h3 class="text-center fw-bold mb-5">Sosok dibalik Kriuk Ayu</h3>
           <div class="row justify-content-center text-center">
             <div class="col-md-4 mb-4">
-              <img src="assets/milvia.jpg" alt="Milvia Rahayu" class="rounded-circle mb-3" width="140" height="140">
+              <img src="assets/mba-ayu.jpg" alt="Milvia Rahayu" class="rounded-circle mb-3" width="140" height="140">
               <h5 class="fw-bold">Milvia Rahayu</h5>
               <p>Pemilik Kriuk Ayu</p>
             </div>
@@ -260,10 +292,10 @@
         </div>
     </div>
   </section>  
-    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body> 
   <!-- Footer -->
-  <footer class="bg-secondary text-white text-center py-4">
+  <footer class="bg-success text-white text-center py-4">
     <p class="mb-1 fw-bold">Kriuk Ayu</p>
     <p class="mb-1">Warujaya, Parung</p>
     <p class="mb-0"><i class="bi bi-c-circle"></i> Syifa Putri Andini - 2025</p>

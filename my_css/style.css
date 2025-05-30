@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+body {
+    font-family: "Montserrat", sans-serif;
+}
+.navbar-kriuk {
+    background-color: #59a96a;  /* Hijau segar */
+  }
+
+  .navbar-brand, .nav-link {
+    color: white !important;
+  }
+
+  .btn-kuning {
+    background-color: #f4d35e;
+    color: #333;
+    border: none;
+  }
+
+  .btn-kuning:hover {
+    background-color: #e6c645;
+    color: #111;
+  }
+
+  .btn-merah {
+    background-color: #e63946;
+    color: white;
+    border: none;
+  }
+
+  .btn-merah:hover {
+    background-color: #c71f2a;
+  }
+
+  .carousel-item img {
+    max-height: 450px; /* atau sesuaikan misalnya 400px, 300px */
+    object-fit: cover;
+    object-position: center;
+  }
+
+      .login-bg {
+      background-color: #f9e65a;
+    }
+
+    .login-container {
+      max-width: 900px;
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 40px;
+      margin: 50px auto;
+    }
+
+    .form-control {
+      height: 50px;
+    }
+
+    .login-btn {
+      background-color: #edea33;
+      color: rgb(26, 26, 26);
+    }
+
+    .login-btn:hover {
+      background-color: #fcb229;
+    }
+
+    .login-image {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 10px;
+      top: 12px;
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon input {
+      padding-left: 35px;
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+    }

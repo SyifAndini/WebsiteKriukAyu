@@ -1,52 +1,68 @@
+<?php
+session_start();
+if(isset($_POST['logout'])) {
+    session_unset();
+    session_destroy();
+    header("Location: home.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Pengguna</title>
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/scss/style.css">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="my_css/style.css">
 </head>
 <body>
     <!-- Bagi dua -->
-     <div class="container-fluid overflow-hidden">
+<div class="container-fluid overflow-hidden">
     <div class="row vh-100 overflow-auto">
-        <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 bg-dark d-flex sticky-top">
-            <div class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-white">
-                <a href="/" class="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <div class="col-12 col-sm-3 col-xl-2 px-sm-2 px-0 bg-light d-flex sticky-top">
+            <aside class="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-2 text-dark">
+                <a href="/" class="d-flex align-items-center pb-sm-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                     <span class="fs-5">Kriuk Ayu<span class="d-none d-sm-inline"></span></span>
                 </a>
                 <ul class="nav nav-pills flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item">
-                        <a href="#" class="nav-link px-sm-0 px-2">
-                            <i class="fs-5 bi-house"></i><span class="ms-1 d-none d-sm-inline">Beranda</span>
+                        <a href="home.php" class="nav-link px-sm-0 px-2">
+                            <i class="fs-5 bi-house text-dark"></i><span class="ms-1 d-none d-sm-inline text-dark">Beranda</span>
                         </a>
                     </li>                    
-                    <li>
-                        <a href="#" class="nav-link px-sm-0 px-2">
-                            <i class="fs-5 bi-table"></i><span class="ms-1 d-none d-sm-inline active">Pesanan Saya</span></a>
+                    <li class="nav-item">
+                        <a href="pesanan.php" class="nav-link px-sm-0 px-2">
+                            <i class="fs-5 bi-table text-dark"></i><span class="ms-1 d-none d-sm-inline active text-dark">Pesanan Saya</span></a>
                     </li>
                 </ul>
                 <div class="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" class="rounded-circle">
-                        <span class="d-none d-sm-inline mx-1">Jennifer Kim</span>
+                        <span class="d-none d-sm-inline mx-1"><?= $_SESSION['nama_user'] ?? 'Pengguna'?></span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                        <li><a class="dropdown-item" href="#">Lihat Profil</a></li>
+                    <ul class="dropdown-menu dropdown-menu-light text-small shadow" aria-labelledby="dropdownUser1">
+                        <li><a class="dropdown-item bi bi-person" href="#">Lihat Profil</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#">Keluar</a></li>
+                        <li>
+                        <!-- Form Logout dalam Dropdown -->
+                        <form method="post" class="px-3 py-2">
+                            <button type="submit" name="logout" class="btn btn-danger w-100">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                            </button>
+                        </form>
+                        </li>
                     </ul>
                 </div>
-            </div>
+            </aside>
         </div>
         <div class="col d-flex flex-column h-sm-100">
             <main class="row overflow-auto">
                 <div class="col pt-4">
-                    <h2>Halo, <span>Jennifer</span>!</h2>
+                    <h2>Halo, <span><?= $_SESSION['nama_user'] ?? 'Pengguna'?></span>!</h2>
                     <hr />
                     <h3>Pesanan Saya</h3>
                     <button class="btn btn-primary">Buat Pesanan Baru</button>
@@ -55,38 +71,13 @@
                         <p>Anda belum pernah memesan kriuk.</p>
                         <p>Silakan klik tombol "Buat Pesanan".</p>
                     </div>
-                    <!-- Jika sudah pernah memesan -->
-                     <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">No</th>
-                    <th scope="col">Jenis Kriuk</th>
-                    <th scope="col">Rasa Kriuk</th>
-                    <th scope="col">Jumlah Kriuk</th>
-                    <th scope="col">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Otak-Otak</td>
-                    <td>Pedas Manis</td>
-                    <td>2</td>
-                    <td><button class="btn btn-danger">Batalkan Pesanan</button></td>
-                </tr>
-                <!-- Tambahkan baris pesanan lainnya di sini -->
-            </tbody>
-            
-                </div>
-            </main>
-            <footer class="row bg-light py-4 mt-auto">
-                <div class="col"> Footer content here... </div>
-            </footer>
-        </div>
-    </div>
-</div>
-
-     <!-- Modal -->
+                    <footer class="row bg-light py-4 mt-auto">
+                    <div class="col"> Footer content here... </div>
+                    </footer> 
+                </div>       
+            </main> 
+            <div>
+                     <!-- Modal -->
       <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
     Tambah Pesanan Kriuk
@@ -133,6 +124,10 @@
       </div>
     </div>
   </div>
-  <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+            </div>        
+        </div>
+    </div>
+</div>
+  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

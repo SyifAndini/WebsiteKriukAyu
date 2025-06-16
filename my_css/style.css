@@ -1,90 +1,147 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 body {
-    font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 .navbar-kriuk {
-    background-color: #59a96a;  /* Hijau segar */
-  }
+  background-color: #59a96a;  /* Hijau segar */
+}
 
-  .navbar-brand, .nav-link {
-    color: white !important;
-  }
+.navbar-brand, .nav-link {
+  color: white;
+}
 
-  .btn-kuning {
-    background-color: #f4d35e;
-    color: #333;
-    border: none;
-  }
+.btn-kuning {
+  background-color: #f4d35e;
+  color: #333;
+  border: none;
+}
 
-  .btn-kuning:hover {
-    background-color: #e6c645;
-    color: #111;
-  }
+.btn-kuning:hover {
+  background-color: #e6c645;
+  color: #111;
+}
 
-  .btn-merah {
-    background-color: #e63946;
-    color: white;
-    border: none;
-  }
+.btn-merah {
+  background-color: #e63946;
+  color: white;
+  border: none;
+}
 
-  .btn-merah:hover {
-    background-color: #c71f2a;
-  }
+.btn-merah:hover {
+  background-color: #c71f2a;
+}
 
-  .carousel-item img {
+.carousel-item img {
     max-height: 450px; /* atau sesuaikan misalnya 400px, 300px */
     object-fit: cover;
     object-position: center;
   }
 
-      .login-bg {
-      background-color: #f9e65a;
-    }
+.login-bg {
+  background-color: #f9e65a;
+  }
 
-    .login-container {
-      max-width: 900px;
-      background-color: white;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 40px;
-      margin: 50px auto;
-    }
+.login-container {
+  max-width: 900px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  padding: 40px;
+  margin: 50px auto;
+}
 
-    .form-control {
-      height: 50px;
-    }
+.form-control {
+  height: 50px;
+}
 
-    .login-btn {
-      background-color: #edea33;
-      color: rgb(26, 26, 26);
-    }
+.login-btn {
+  background-color: #edea33;
+  color: rgb(26, 26, 26);
+}
 
-    .login-btn:hover {
-      background-color: #fcb229;
-    }
+.login-btn:hover {
+  background-color: #fcb229;
+}
 
-    .login-image {
-      max-width: 100%;
-      height: auto;
-    }
+.login-image {
+  max-width: 100%;
+  height: auto;
+}
 
-    .input-icon {
-      position: absolute;
-      left: 10px;
-      top: 12px;
-    }
+.input-icon {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+}
 
-    .input-with-icon {
-      position: relative;
-    }
+.input-with-icon {
+  position: relative;
+}
 
-    .input-with-icon input {
-      padding-left: 35px;
-    }
+.input-with-icon input {
+  padding-left: 35px;
+}
 
-    @media (max-width: 768px) {
-      .login-container {
-        margin: 20px;
-        padding: 30px 20px;
-      }
-    }
+@media (max-width: 768px) {
+  .login-container {
+    margin: 20px;
+    padding: 30px 20px;
+  }
+}
+
+/* Form Pesanan*/
+.order-box {
+  background-color: #fbf5db;
+  border-radius: 15px;
+  padding: 2rem;
+}
+.table td, .table th {
+  vertical-align: middle;
+}
+.sidebar {
+  width: 250px;
+  min-height: 100vh;
+  background-color: #f7dc44;
+}
+nav {
+  display: flex;
+  flex-direction: column;
+
+}
+nav > .nav-link {
+  color: #333;
+}
+nav > .nav-link:hover{
+  background-color: #59a96a;
+  color: #333;
+}
+
+nav > .nav-link.active {
+  background-color: #59a96a;
+  color: white;
+}
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1040;
+    width: 250px;
+    left: -250px;
+    transition: left 0.3s ease-in-out;
+  }
+  .sidebar.show {
+    left: 0;
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1030;
+    display: none;
+  }
+  .overlay.show {
+    display: block;
+  }
+}

@@ -3,7 +3,7 @@ include_once 'koneksi.php';
 
 // Function untuk generate ID user (P0001, P0002, dst)
 function generateUserId($conn) {
-    $sql = "SELECT COUNT(*) AS total FROM user";
+    $sql = "SELECT COUNT(*) AS total FROM pembeli";
     $result = mysqli_query($conn, $sql);
     $row = mysqli_fetch_assoc($result);
     return 'P' . str_pad(($row['total'] + 1), 4, '0', STR_PAD_LEFT);
@@ -20,20 +20,17 @@ if (isset($_POST['daftar'])) {
     } else {
         // Generate ID user dan role
         $id_user = generateUserId($conn);
-        $role = 'Pembeli'; // Default role
         
         // Hash password
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Simpan ke database dengan prepared statement
-        $stmt = $conn->prepare("INSERT INTO user (id_user, nama, email, password, role) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $id_user, $nama, $email, $hashed_password, $role);
+        $stmt = $conn->prepare("INSERT INTO pembeli (id_pembeli, nama, email, password) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $id_user, $nama, $email, $hashed_password);
         
         if ($stmt->execute()) {
-            echo "<script>
-                alert('Registrasi berhasil! ID Anda: $id_user');
-                window.location.href = 'login.php'; // Redirect setelah registrasi
-            </script>";
+            echo "<script>alert('Registrasi berhasil! ID Anda: $id_user')</script>";
+            header("Location: login.php");
         } else {
             echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
         }

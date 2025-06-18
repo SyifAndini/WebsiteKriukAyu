@@ -55,11 +55,11 @@ if (isset($_POST['logout'])) {
                 <?php else: ?>
                   <div class="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1" id="userProfile">
                     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="https://github.com/mdo.png" alt="hugenerd" width="28" height="28" class="rounded-circle">
+                        <img src="assets/syifa.jpg" alt="Foto Profil" width="28" height="28" class="rounded-circle">
                         <span class="d-none d-sm-inline mx-1"><?= $_SESSION['nama_user'] ?? 'Pengguna'?></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
-                        <li><a class="dropdown-item bi bi-person" href="#">Lihat Profil</a></li>
+                        <li><a class="dropdown-item bi bi-person" href="profile.php">Lihat Profil</a></li>
                         <li><a class="dropdown-item "href="dashboard.php">Dashboard</a></li>
                         <li>
                             <hr class="dropdown-divider">
@@ -130,7 +130,7 @@ if (isset($_POST['logout'])) {
                       <div class="card-body">
                         <h5 class="card-title">Makaroni</h5>
                         <h6 class="card-subtitle mb-2 text-body-secondary">Rp 7.000</h6>
-                        <p class="card-text">Makaroni yang digoreg dengan minyak panas menggunakan metode deep fry.</p>
+                        <p class="card-text">Makaroni yang digoreng dengan minyak panas menggunakan metode deep fry.</p>
                       </div>
                     </div>
                   </div>

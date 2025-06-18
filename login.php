@@ -8,7 +8,7 @@ if(isset($_POST['masuk'])) {
     if (empty($email) || empty($password)) {
         echo "<script>alert('Semua field harus diisi!')</script>";
     } else {
-        $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
+        $stmt = $conn->prepare("SELECT * FROM pembeli WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -17,8 +17,9 @@ if(isset($_POST['masuk'])) {
             $user = $result->fetch_assoc();
             if (password_verify($password, $user['password'])) {
                 session_start();
-                $_SESSION['id_user'] = $user['id_user'];
+                $_SESSION['id_user'] = $user['id_pembeli'];
                 $_SESSION['nama_user'] = $user['nama'];
+                $_SESSION['email_user'] = $user['email'];
                 $_SESSION['logged_in'] = true;
                 header("Location: dashboard.php");
                 exit();

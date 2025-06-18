@@ -1,13 +1,4 @@
 <?php
-session_start();
-if(isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Location: home.php");
-    exit();
-}
-?>
-<?php
 require_once 'koneksi.php';
 session_start();
 $id_pembeli = $_SESSION['id_user'];
@@ -95,11 +86,11 @@ if(isset($_GET['hal'])) {
             <i class="bi bi-house"></i>
               <span>Beranda</span>
           </a>
-          <a class="nav-link" href="profile.php">
+          <a class="nav-link active" href="profile.php">
             <i class="bi bi-person"></i>
               <span>Profil Saya</span>
           </a>
-          <a class="nav-link active" href="dashboard.php">
+          <a class="nav-link" href="dashboard.php">
             <i class="bi bi-cart"></i>
               <span>Pesanan Saya</span>
           </a>
@@ -109,12 +100,10 @@ if(isset($_GET['hal'])) {
           </a>
         </nav>
         <div class="mt-auto">
-            <form method="POST">
-                <button type="submit" name="logout" class="btn btn-outline-danger w-100">
-                <i class="bi bi-box-arrow-right"></i> Logout
-                </button>
-            </form>
-         </div>
+    <button class="btn btn-outline-danger w-100">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </button>
+  </div>
       </div>
 
       <!-- Main Content -->
@@ -124,16 +113,79 @@ if(isset($_GET['hal'])) {
 
         <h4><strong>Halo, <?= $_SESSION['nama_user']?>!</strong></h4>
         <hr>
-        <h3>Pesanan Saya</h3>
-                    <button class="btn btn-primary">Buat Pesanan Baru</button>
-                    <!-- Jika belum pernah memesan -->
-                    <div class="alert alert-info text-center" role="alert">
-                        <p>Anda belum pernah memesan kriuk.</p>
-                        <p>Silakan klik tombol "Buat Pesanan".</p>
+        <div class="profile-section">
+                <h4><i class="bi bi-person me-2"></i> Foto Profil</h4>
+                <p class="text-muted mb-4">Ekspresikan diri Anda dengan foto diri yang keren</p>
+                
+                <div class="border rounded p-4 text-center mb-3" style="cursor: pointer;" onclick="document.getElementById('fileUpload').click()">
+                    <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+                    <h5 class="mt-2">Unggah Foto</h5>
+                    <small class="text-muted" id="fileName">Tidak ada file yang dipilih</small>
+                    <input type="file" id="fileUpload" class="d-none" accept="image/*">
+                </div>
+                
+                <button class="btn btn-primary">Simpan Perubahan</button>
+            </div>
+            
+            <!-- Informasi Profil Section -->
+            <div class="profile-section">
+                <h4><i class="bi bi-info-circle me-2"></i> Informasi Profil</h4>
+                <p class="text-muted mb-4">Ubah informasi profil Anda</p>
+                
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" value="Nama Pengguna">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="namapengguna@gmail.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">No. Telp</label>
+                        <input type="tel" class="form-control" value="08123456789">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Alamat Domisili</label>
+                        <textarea class="form-control" rows="3">Jl. Contoh No. 123, Kota</textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </form>
+            </div>
+            
+            <!-- Hapus Akun Section -->
+            <div class="profile-section">
+                <h4><i class="bi bi-trash me-2"></i> Hapus Akun</h4>
+                <p class="text-muted mb-4">Setelah akun Anda dihapus, semua data Anda akan dihapus secara permanent.</p>
+                
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    Hapus Akun
+                </button>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Konfirmasi Hapus Akun</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Apakah Anda yakin ingin menghapus akun Anda? Tindakan ini tidak dapat dibatalkan.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="button" class="btn btn-danger">Hapus Akun</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
       </div>
   <!-- Bootstrap JS & Sidebar Toggle -->
-  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function toggleSidebar() {
       const sidebar = document.getElementById("sidebar");

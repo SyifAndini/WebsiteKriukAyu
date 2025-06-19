@@ -121,6 +121,25 @@ nav > .nav-link.active {
   background-color: #59a96a;
   color: white;
 }
+
+/*  */
+.profile-section {
+  /* background-color: red; */
+}
+
+.btn {
+  margin-bottom: 2rem;
+}
+
+.info-pesanan{
+  /* text-align: center; */
+}
+
+.dropdown-menu {
+    margin-left: -70px; /* Geser ke kiri sebanyak 20px */
+}
+
+
 @media (max-width: 991.98px) {
   .sidebar {
     position: fixed;

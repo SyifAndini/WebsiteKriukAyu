@@ -29,7 +29,7 @@ if(isset($_POST['logout'])) {
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src="assets/syifa.jpg" alt="Profil User"  width="50" height="50" class="rounded-circle">
+          <img src="https://avataaars.io/?avatarStyle=Circle&topType=NoHair&accessoriesType=Sunglasses&facialHairType=Blank&clotheType=BlazerShirt&eyeType=Default&eyebrowType=Default&mouthType=Default&skinColor=Light" alt="Profil User"  width="50" height="50" class="rounded-circle">
           <div><strong><?= $_SESSION['nama_user']?></strong></div>
           <small><?= $_SESSION['email_user']?></small>
         </div>

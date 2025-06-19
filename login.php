@@ -20,7 +20,6 @@ if(isset($_POST['masuk'])) {
                 $_SESSION['id_user'] = $user['id_pembeli'];
                 $_SESSION['nama_user'] = $user['nama'];
                 $_SESSION['email_user'] = $user['email'];
-                $_SESSION['foto_profil'] = $user['foto_profil'];
                 $_SESSION['logged_in'] = true;
                 header("Location: dashboard.php");
                 exit();

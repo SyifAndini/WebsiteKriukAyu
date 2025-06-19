@@ -1,5 +1,5 @@
 <?php
-session_start();
+// session_start();
 if(isset($_POST['logout'])) {
     session_unset();
     session_destroy();
@@ -8,9 +8,9 @@ if(isset($_POST['logout'])) {
 }
 ?>
 <?php
-require_once 'koneksi.php';
+require_once '../koneksi.php';
 session_start();
-$id_pembeli = $_SESSION['id_user'];
+$id_admin = $_SESSION['id_admin'];
 
 if(isset($_POST['tambah_kriuk'])) {
     $jenis_kriuk = $_POST['jenisKriuk'] ?? '';
@@ -71,8 +71,8 @@ if(isset($_GET['hal'])) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Buat Pesanan Baru</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="my_css/style.css">
+  <link rel="stylesheet" href="../bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../my_css/style.css">
 </head>
 <body>
   <!-- Overlay for mobile sidebar -->
@@ -91,22 +91,22 @@ if(isset($_GET['hal'])) {
           <small><?= $_SESSION['email_user']?></small>
         </div>
         <nav class="nav flex-column mb-4">
-          <a class="nav-link" href="home.php">
+          <!-- <a class="nav-link" href="../home.php">
             <i class="bi bi-house"></i>
               <span>Beranda</span>
-          </a>
-          <a class="nav-link" href="profile.php">
+          </a> -->
+          <a class="nav-link rounded-4 mb-1 shadow-sm text-center" href="profile.php">
             <i class="bi bi-person"></i>
               <span>Profil Saya</span>
           </a>
-          <a class="nav-link active" href="dashboard.php">
+          <a class="nav-link active rounded-4 mt-1 shadow-sm text-center" href="dashboard.php">
             <i class="bi bi-cart"></i>
-              <span>Pesanan Saya</span>
+              <span>Info Pesanan</span>
           </a>
-          <a class="nav-link" href="order.php">
+          <!-- <a class="nav-link" href="order.php">
             <i class="bi bi-plus-circle"></i>
               <span>Buat Pesanan</span>
-          </a>
+          </a> -->
         </nav>
         <div class="mt-auto">
             <form method="POST">
@@ -124,12 +124,11 @@ if(isset($_GET['hal'])) {
 
         <h4><strong>Halo, <?= $_SESSION['nama_user']?>!</strong></h4>
         <hr>
-        <h3>Pesanan Saya</h3>
-                    <button class="btn btn-primary">Buat Pesanan Baru</button>
+        <h3 class="info-pesanan">Info Pesanan</h3>
+                    <!-- <button class="btn btn-primary">Buat Pesanan Baru</button> -->
                     <!-- Jika belum pernah memesan -->
                     <div class="alert alert-info text-center" role="alert">
-                        <p>Anda belum pernah memesan kriuk.</p>
-                        <p>Silakan klik tombol "Buat Pesanan".</p>
+                        <p>Belum ada yang mesen :(</p>
                     </div>
       </div>
   <!-- Bootstrap JS & Sidebar Toggle -->

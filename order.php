@@ -22,8 +22,10 @@ if(isset($_POST['tambah_kriuk'])) {
         $stmt->execute();
         $stmt->close();
 
-        echo "<script>alert('Kriuk berhasil ditambahkan!')</script>";
-        header("Location: order.php");
+        echo "<script>
+        alert('Kriuk berhasil ditambahkan!');
+        document.location = 'order.php';
+        </script>";
         exit();
       } 
 }
@@ -52,58 +54,6 @@ if(isset($_GET['hal'])) {
         }
     }
 }
-function generateOrderId($conn) {
-    $query = "SELECT COUNT(*) AS total FROM pesanan";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-    return 'P' . str_pad(($row['total'] + 1), 4, '0', STR_PAD_LEFT);
-}
-// Hitung total harga dari semua kriuk yang ada di cart
-$total_query = "SELECT SUM(p.harga * c.jumlah) AS total FROM cart c JOIN produk p ON c.id_kriuk = p.id_kriuk WHERE c.id_pembeli = '$id_pembeli'";
-$total_result = mysqli_query($conn, $total_query);
-$subtotal = mysqli_fetch_assoc($total_result);
-$subtotal_produk = $subtotal['total'] ?? 0;
-$biaya_pengiriman = 10000; // Biaya tetap pengiriman  
-$total_pembayaran = $subtotal_produk + $biaya_pengiriman; 
-
-if(isset($_POST['buat_pesanan'])){
-  $no_pesanan = generateOrderId($conn);
-  $status = "Sedang Diproses";
-
-// Ambil data dari cart
-$query_cart = mysqli_query($conn, "SELECT cart.id_kriuk, cart.jumlah, produk.harga
-                                   FROM cart 
-                                   JOIN produk ON cart.id_kriuk = produk.id_kriuk 
-                                   WHERE cart.id_pembeli = '$id_pembeli'");
-// Insert ke tabel pesanan (ringkasan)
-mysqli_query($conn, "INSERT INTO pesanan (no_pesanan, id_pembeli, subtotal_produk, biaya_pengiriman, total, status) 
-                     VALUES ('$no_pesanan', '$id_pembeli', $subtotal_produk, $biaya_pengiriman, $total_pembayaran, '$status')");
-
-
-while ($row = mysqli_fetch_assoc($query_cart)) {
-    $id_kriuk = $row['id_kriuk'];
-    $jumlah = $row['jumlah'];
-    $harga = $row['harga'];
-    $subtotal = $jumlah * $harga;
-    // Insert ke item_pesanan
-    mysqli_query($conn, "INSERT INTO item_pesanan (no_pesanan, id_kriuk, jumlah, harga_akhir)
-                         VALUES ('$no_pesanan', '$id_kriuk', $jumlah, $subtotal)");
-}
-
-// Kosongkan cart
-mysqli_query($conn, "DELETE FROM cart WHERE id_pembeli = '$id_pembeli'");
-echo "<script>alert(Pesanan Anda sudah masuk!)</script>";
-header('Location: order.php');
-}
-
-// Ambil data user dari database
-$query = "SELECT * FROM pembeli WHERE id_pembeli = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_pembeli);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -159,7 +109,7 @@ $user = $result->fetch_assoc();
       <!-- Main Content -->
       <div class="col-lg-9 px-4 py-3 justify-content-center">
         <!-- Mobile Menu Button -->
-        <button class="btn btn-outline-secondary d-lg-none mb-3" onclick="toggleSidebar()"><i class="bi bi-list"></i> Menu</button>
+        <button class="btn btn-outline-secondary d-lg-none mb-3" onclick="toggleSidebar()">☰ Menu</button>
 
         <h4><strong>Halo, <?= $_SESSION['nama_user']?>!</strong></h4>
         <hr>
@@ -207,6 +157,15 @@ $user = $result->fetch_assoc();
             </table>
           </div>
           <?php endif; ?>
+          <?php
+          // Hitung total harga dari semua kriuk yang ada di cart
+          $total_query = "SELECT SUM(p.harga * c.jumlah) AS total FROM cart c JOIN produk p ON c.id_kriuk = p.id_kriuk WHERE c.id_pembeli = '$id_pembeli'";
+          $total_result = mysqli_query($conn, $total_query);
+          $subtotal = mysqli_fetch_assoc($total_result);
+          $subtotal_produk = $subtotal['total'] ?? 0;
+          $biaya_pengiriman = 10000; // Biaya tetap pengiriman  
+          $total_pembayaran = $subtotal_produk + $biaya_pengiriman; 
+          ?>
           <div class="text-end">
             <p>Subtotal Produk: <strong>Rp. <?=number_format($subtotal_produk)?></strong></p>
             <p>Biaya Pengiriman: <strong>Rp. <?=number_format($biaya_pengiriman)?></strong></p>
@@ -229,15 +188,15 @@ $user = $result->fetch_assoc();
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">No. HP</label>
-                <input type="text" class="form-control" value=<?=$user['no_telp']?>>
+                <input type="text" class="form-control" value="0821234567">
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Alamat Lengkap</label>
-              <textarea class="form-control" rows="3"><?=$user['alamat']?></textarea>
+              <textarea class="form-control" rows="3">Jl Durian No 15, Gang Gagak</textarea>
             </div>
             <div class="text-end">
-              <button type="submit" name="buat_pesanan" class="btn btn-dark">Buat Pesanan</button>
+              <button class="btn btn-dark">Buat Pesanan</button>
             </div>
           </form>
         </div>

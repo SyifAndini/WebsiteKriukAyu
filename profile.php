@@ -3,64 +3,123 @@ require_once 'koneksi.php';
 session_start();
 $id_pembeli = $_SESSION['id_user'];
 
-if(isset($_POST['tambah_kriuk'])) {
-    $jenis_kriuk = $_POST['jenisKriuk'] ?? '';
-    $rasa_kriuk = $_POST['rasaKriuk'] ?? '';
-    $jumlah_kriuk = $_POST['jumlah'] ?? '';
+/// Handle Upload Foto Profil
+if(isset($_POST['simpan_foto']) && isset($_FILES['foto_profil'])) {
+    $uploadDir = 'uploads/';
+    $fileName = $_FILES['foto_profil']['name'];
+    $fileTmp = $_FILES['foto_profil']['tmp_name'];
+    $fileSize = $_FILES['foto_profil']['size'];
+    $fileError = $_FILES['foto_profil']['error'];
+    
+    // Validasi file
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    
+      // Buat folder jika belum ada
+    if(!file_exists($folder)) {
+        mkdir($folder, 0755, true);
+    }
 
-    if (empty($jenis_kriuk) || empty($rasa_kriuk) || empty($jumlah_kriuk)) {
-        echo "<script>alert('Semua field harus diisi!')</script>";
+    if(in_array($fileExt, $allowedExtensions)) {
+        if($fileError === 0) {
+            if($fileSize < 2000000) { // Maksimal 2MB
+                $newFileName = uniqid('profile_', true) . '.' . $fileExt;
+                $fileDestination = $uploadDir . $newFileName;
+                
+                if(move_uploaded_file($fileTmp, $fileDestination)) {
+                    // Update database
+                    $stmt = $conn->prepare("UPDATE pembeli SET foto_profil = ? WHERE id_pembeli = ?");
+                    $stmt->bind_param("ss", $fileDestination, $id_pembeli);
+                    
+                    if($stmt->execute()) {
+                        $_SESSION['foto_profil'] = $fileDestination;
+                        $_SESSION['success'] = "Foto profil berhasil diupdate!";
+                    } else {
+                        $_SESSION['error'] = "Gagal menyimpan ke database: " . $conn->error;
+                    }
+                    $stmt->close();
+                } else {
+                    $_SESSION['error'] = "Gagal mengupload file";
+                }
+            } else {
+                $_SESSION['error'] = "Ukuran file terlalu besar (maks 2MB)";
+            }
+        } else {
+            $_SESSION['error'] = "Error saat upload file";
+        }
     } else {
-        // Ambil id_kriuk berdasarkan jenis dan rasa
-        $query = mysqli_query($conn, "SELECT id_kriuk FROM produk WHERE jenis_kriuk = '$jenis_kriuk' AND rasa_kriuk = '$rasa_kriuk'");
-        $data = mysqli_fetch_assoc($query);
-        $id_kriuk = $data['id_kriuk'];
-
-        $query = "INSERT INTO cart (id_pembeli, id_kriuk, jumlah) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($query);
-        $stmt->bind_param("ssi", $id_pembeli, $id_kriuk, $jumlah_kriuk);
-        $stmt->execute();
-        $stmt->close();
-
-        echo "<script>
-        alert('Kriuk berhasil ditambahkan!');
-        document.location = 'order.php';
-        </script>";
-        exit();
-      } 
+        $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG, GIF)";
+    }
+    
+    // Redirect untuk menghindari resubmit form
+    header("Location: profile.php");
+    exit();
 }
 
-if(isset($_GET['hal'])) {
-    //Pengujian jika edit Data
-    if($_GET['hal'] == "edit") {
-        //Tampilkan Data yang akan diedit
-        $tampil = mysqli_query($koneksi, "SELECT * FROM cart WHERE cart = '$_GET[id_cart]' ");
-        $data = mysqli_fetch_array($tampil);
+if (isset($_POST['simpan_info'])){
+    $nama = $_POST['nama'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $no_telp = $_POST['no_telp'] ?? '';
+    $alamat = $_POST['alamat'] ?? '';
+  
+    $query = "UPDATE pembeli SET nama = ?, email = ?, no_telp = ?, alamat = ?
+              WHERE id_pembeli = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("ssssi", $nama, $email, $no_telp, $alamat, $id_pembeli);
+    $stmt->execute();
+    if ($stmt->execute()) {
+            echo "<script>alert('Data berhasil diperbarui!')</script>";
+            header("Location: profile.php");
+        } else {
+            echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
+        }
+}
 
-        if($data) {
-            //Jika data ditemukan, maka jumlah kriuk akan ditampilkan dalam modal
+if (isset($_POST['simpan_password'])){
+    $old_pass = $_POST['old_pass'] ?? '';
+    $new_pass = $_POST['new_pass'] ?? '';
+    $confirm_pass = $_POST['confirm_pass'] ?? '';
 
-          
+    if(password_verify($old_pass, $user['password'])){
+      if($new_pass == $confirm_pass){
+        $hashed_password = password_hash($new_pass, PASSWORD_DEFAULT);
+        // Simpan ke database dengan prepared statement
+        $stmt = $conn->prepare("UPDATE pembeli SET password = ? WHERE id_pembeli = ?");
+        $stmt->bind_param("ss", $hashed_password, $id_pembeli);
+        
+        if ($stmt->execute()) {
+            echo "<script>alert('Password Anda berhasil diubah!')</script>";
+            header("Location: profile.php");
+        } else {
+            echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
         }
         
-    } else if ($_GET['hal'] == "hapus") {
-        //Persiapan hapus data
-        $hapus = mysqli_query($conn, "DELETE FROM cart WHERE id_cart = '$_GET[id_cart]' ");
-        if($hapus){
-            echo "<script>
-                    alert('Kriuk Berhasil Dihapus!');
-                    document.location = 'order.php';
-                 </script>";
-        }
+        $stmt->close();
+      }
+    }else{
+      echo "<script>alert('Password lama Anda tidak sesuai! Mohon cek kembali.')</script>";
     }
-}
+  }
+
+// Ambil data user dari database
+$query = "SELECT * FROM pembeli WHERE id_pembeli = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $id_pembeli);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// Masukkan data ke session jika belum ada
+$_SESSION['nama_user'] = $user['nama'];
+$_SESSION['email_user'] = $user['email'];
+$_SESSION['foto_profil'] = $user['foto_profil'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Buat Pesanan Baru</title>
+  <title>Profil Saya</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
@@ -77,7 +136,11 @@ if(isset($_GET['hal'])) {
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src="assets/syifa.jpg" alt="Profil User"  width="50" height="50" class="rounded-circle">
+          <?php if(!empty($_SESSION['foto_profil']) && file_exists($_SESSION['foto_profil'])): ?>
+            <img src="<?= $_SESSION['foto_profil'] ?>" alt="Profil User" width="50" height="50" class="rounded-circle">
+          <?php else: ?>
+              <img src="assets/syifa.jpg" alt="Profil User" width="50" height="50" class="rounded-circle">
+          <?php endif; ?>
           <div><strong><?= $_SESSION['nama_user']?></strong></div>
           <small><?= $_SESSION['email_user']?></small>
         </div>
@@ -117,14 +180,15 @@ if(isset($_GET['hal'])) {
                 <h4><i class="bi bi-person me-2"></i> Foto Profil</h4>
                 <p class="text-muted mb-4">Ekspresikan diri Anda dengan foto diri yang keren</p>
                 
-                <div class="border rounded p-4 text-center mb-3" style="cursor: pointer;" onclick="document.getElementById('fileUpload').click()">
+                <div class="border rounded p-4 text-center mb-3" style="cursor: pointer;" onclick="document.getElementById('fotoProfil').click()">
                     <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
                     <h5 class="mt-2">Unggah Foto</h5>
                     <small class="text-muted" id="fileName">Tidak ada file yang dipilih</small>
-                    <input type="file" id="fileUpload" class="d-none" accept="image/*">
+                    <input type="file" id="fotoProfil" class="d-none" accept="image/*">
                 </div>
-                
-                <button class="btn btn-primary">Simpan Perubahan</button>
+                <form method="post" action="">
+                  <button class="btn btn-primary" name="simpan_foto">Simpan Perubahan</button>
+                </form>
             </div>
             
             <!-- Informasi Profil Section -->
@@ -132,28 +196,49 @@ if(isset($_GET['hal'])) {
                 <h4><i class="bi bi-info-circle me-2"></i> Informasi Profil</h4>
                 <p class="text-muted mb-4">Ubah informasi profil Anda</p>
                 
-                <form>
+                <form method="post">
                     <div class="mb-3">
                         <label class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" value="Nama Pengguna">
+                        <input type="text" class="form-control" name="nama" value=<?=$user['nama']?>>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" class="form-control" value="namapengguna@gmail.com">
+                        <input type="email" class="form-control" name="email" value=<?=$user['email']?>>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">No. Telp</label>
-                        <input type="tel" class="form-control" value="08123456789">
+                        <input type="tel" class="form-control" name="no_telp" value=<?=$user['no_telp']?>>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Alamat Domisili</label>
-                        <textarea class="form-control" rows="3">Jl. Contoh No. 123, Kota</textarea>
+                        <textarea class="form-control" name="alamat" rows="3"><?=$user['alamat']?></textarea>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    <button type="submit" name="simpan_info" class="btn btn-primary">Simpan Perubahan</button>
                 </form>
             </div>
-            
+
+            <div class="profile-section">
+                    <h4><i class="bi bi-shield-lock me-2"></i> Ubah Kata Sandi</h4>
+                    <p class="text-muted">Gunakan kata sandi yang aman</p>
+                    
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Kata Sandi Lama</label>
+                            <input type="password" name="old_pass" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kata Sandi Baru</label>
+                            <input type="password" name="new_pass" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Konfirmasi Kata Sandi Baru</label>
+                            <input type="password" name="confirm_pass" class="form-control">
+                        </div>
+                        <button type="submit" name="simpan_password" class="btn btn-primary">Simpan Perubahan</button>
+                    </form>
+            </div>
+
             <!-- Hapus Akun Section -->
             <div class="profile-section">
                 <h4><i class="bi bi-trash me-2"></i> Hapus Akun</h4>
@@ -176,8 +261,10 @@ if(isset($_GET['hal'])) {
                                 <p>Apakah Anda yakin ingin menghapus akun Anda? Tindakan ini tidak dapat dibatalkan.</p>
                             </div>
                             <div class="modal-footer">
+                              <form method="post" action="">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                <button type="button" class="btn btn-danger">Hapus Akun</button>
+                                <button type="button" name="hapus" class="btn btn-danger">Hapus Akun</button>
+                              </form>
                             </div>
                         </div>
                     </div>
@@ -187,6 +274,11 @@ if(isset($_GET['hal'])) {
   <!-- Bootstrap JS & Sidebar Toggle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    document.getElementById('fotoProfil').addEventListener('change', function(e) {
+    const fileName = e.target.files[0]?.name || 'Tidak ada file yang dipilih';
+    document.getElementById('fileName').textContent = fileName;
+    });
+    // Toggle sidebar on mobile       
     function toggleSidebar() {
       const sidebar = document.getElementById("sidebar");
       const overlay = document.getElementById("overlay");

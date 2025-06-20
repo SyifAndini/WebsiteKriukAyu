@@ -96,7 +96,7 @@ $conn->close();
             </div>
             <div class="mb-3">
               <label for="foto_profil" class="form-label">Foto Profil</label>
-              <input type="file" id="foto_profil" name="foto_profil" class="form-control">
+              <input type="file" id="foto_profil" name="foto_profil" class="hidden">
             </div>
             <div class="mb-3">
               <label for="alamat" class="form-label">Alamat</label>

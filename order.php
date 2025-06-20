@@ -54,6 +54,30 @@ if(isset($_GET['hal'])) {
         }
     }
 }
+
+// Ambil foto dari DB
+$id = $_SESSION['id_user'] ?? null;
+
+if ($id) {
+    $stmt = $conn->prepare("SELECT foto_profil FROM pembeli WHERE id_pembeli = ?");
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $stmt->bind_result($foto);
+    $stmt->fetch();
+    $stmt->close();
+
+    if ($foto) {
+        // Encode foto ke base64
+        $base64Image = base64_encode($foto);
+        // Asumsi foto jpeg, sesuaikan jika png atau lainnya
+        $imgSrc = "data:image/jpeg;base64," . $base64Image;
+    } else {
+        // Jika tidak ada foto, pakai gambar default
+        $imgSrc = "assets/default-avatar.png";
+    }
+} else {
+    $imgSrc = "assets/default-avatar.png";
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -77,7 +101,7 @@ if(isset($_GET['hal'])) {
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src="assets/syifa.jpg" alt="Profil User"  width="50" height="50" class="rounded-circle">
+          <img src="<?= $imgSrc ?>" alt="Profil User"  width="50" height="50" class="rounded-circle">
           <div><strong><?= $_SESSION['nama_user']?></strong></div>
           <small><?= $_SESSION['email_user']?></small>
         </div>

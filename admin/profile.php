@@ -54,6 +54,75 @@ if(isset($_GET['hal'])) {
         }
     }
 }
+
+// Ambil foto dari DB
+$id = $_SESSION['id_admin'] ?? null;
+
+if ($id) {
+    $stmt = $conn->prepare("SELECT foto_profil FROM admin WHERE id_admin = ?");
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $stmt->bind_result($foto);
+    $stmt->fetch();
+    $stmt->close();
+
+    if ($foto) {
+        // Encode foto ke base64
+        $base64Image = base64_encode($foto);
+        // Asumsi foto jpeg, sesuaikan jika png atau lainnya
+        $imgSrc = "data:image/jpeg;base64," . $base64Image;
+    } else {
+        // Jika tidak ada foto, pakai gambar default
+        $imgSrc = "assets/default-avatar.png";
+    }
+} else {
+    $imgSrc = "assets/default-avatar.png";
+}
+
+// Proses update foto profil
+if (isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] === UPLOAD_ERR_OK) {
+    $fileTmpPath = $_FILES['foto_profil']['tmp_name'];
+    $fileType = mime_content_type($fileTmpPath);
+
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!in_array($fileType, $allowedTypes)) {
+        echo "<script>alert('Format file tidak didukung. Gunakan JPG, PNG, atau GIF.');</script>";
+    } else {
+        $fotoData = file_get_contents($fileTmpPath);
+
+        $query = "UPDATE admin SET foto_profil = ? WHERE id_admin = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ss", $fotoData, $id_admin);
+        $stmt->execute();
+        $stmt->close();
+
+        echo "<script>alert('Foto profil berhasil diperbarui!'); window.location.href='profile.php';</script>";
+        exit();
+    }
+}
+
+$stmt = $conn->prepare("SELECT foto_profil FROM admin WHERE id_admin = ?");
+$stmt->bind_param("s", $id_admin);
+$stmt->execute();
+$stmt->bind_result($foto);
+$stmt->fetch();
+$stmt->close();
+
+if ($foto) {
+    $base64Image = base64_encode($foto);
+    // Asumsikan JPEG, kalau PNG ubah image/jpeg jadi image/png
+    $imgSrc = "data:image/jpeg;base64," . $base64Image;
+} else {
+    $imgSrc = "assets/default-avatar.png"; // fallback kalau belum upload foto
+}
+
+// logout
+if (isset($_GET['logout'])) {
+    session_unset();
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -77,7 +146,7 @@ if(isset($_GET['hal'])) {
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src="assets/syifa.jpg" alt="Profil User"  width="50" height="50" class="rounded-circle">
+          <img src="<?= $imgSrc ?>" alt="Profil User"  width="50" height="50" class="rounded-circle">
           <div><strong><?= $_SESSION['nama_user']?></strong></div>
           <small><?= $_SESSION['email_user']?></small>
         </div>
@@ -100,9 +169,11 @@ if(isset($_GET['hal'])) {
           </a> -->
         </nav>
         <div class="mt-auto">
-    <button class="btn btn-outline-danger w-100">
-      <i class="bi bi-box-arrow-right"></i> Logout
-    </button>
+    <a href="?logout=true">
+      <button class="btn btn-outline-danger w-100">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </button>
+    </a>
   </div>
       </div>
 
@@ -117,14 +188,16 @@ if(isset($_GET['hal'])) {
                 <h4><i class="bi bi-person me-2"></i> Foto Profil</h4>
                 <p class="text-muted mb-4">Ekspresikan diri Anda dengan foto diri yang keren</p>
                 
-                <div class="border rounded p-4 text-center mb-3" style="cursor: pointer;" onclick="document.getElementById('fileUpload').click()">
-                    <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
-                    <h5 class="mt-2">Unggah Foto</h5>
-                    <small class="text-muted" id="fileName">Tidak ada file yang dipilih</small>
-                    <input type="file" id="fileUpload" class="d-none" accept="image/*">
-                </div>
-                
-                <button class="btn btn-primary">Simpan Perubahan</button>
+                <form action="profile.php" method="POST" enctype="multipart/form-data">
+                  <div class="border rounded p-4 text-center mb-3" style="cursor: pointer;" onclick="document.getElementById('fileUpload').click()">
+                      <i class="bi bi-cloud-arrow-up fs-1 text-muted"></i>
+                      <h5 class="mt-2">Unggah Foto</h5>
+                      <small class="text-muted" id="fileName">Tidak ada file yang dipilih</small>
+                      <input type="file" name="foto_profil" id="fileUpload" class="d-none" accept="image/*" onchange="updateFileName(this)">
+                  </div>
+                  
+                  <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
+                </form>
             </div>
             
             <!-- Informasi Profil Section -->
@@ -193,6 +266,11 @@ if(isset($_GET['hal'])) {
       sidebar.classList.toggle("show");
       overlay.classList.toggle("show");
     }
+
+    function updateFileName(input) {
+      const fileName = input.files[0]?.name || "Tidak ada file yang dipilih";
+      document.getElementById("fileName").textContent = fileName;
+  }
   </script>
 </body>
 </html>

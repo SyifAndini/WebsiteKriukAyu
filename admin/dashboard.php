@@ -3,7 +3,7 @@
 if(isset($_POST['logout'])) {
     session_unset();
     session_destroy();
-    header("Location: home.php");
+    header("Location: index.php");
     exit();
 }
 ?>
@@ -63,7 +63,32 @@ if(isset($_GET['hal'])) {
         }
     }
 }
+
+// Ambil foto dari DB - Table Admin
+$stmt = $conn->prepare("SELECT foto_profil FROM admin WHERE id_admin = ?");
+$stmt->bind_param("s", $id_admin);
+$stmt->execute();
+$stmt->bind_result($foto);
+$stmt->fetch();
+$stmt->close();
+
+if ($foto) {
+    $base64Image = base64_encode($foto);
+    // Asumsikan JPEG, kalau PNG ubah image/jpeg jadi image/png
+    $imgSrc = "data:image/jpeg;base64," . $base64Image;
+} else {
+    $imgSrc = "assets/default-avatar.png"; // fallback kalau belum upload foto
+}
+
+// logout
+if (isset($_GET['logout'])) {
+    session_unset();
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -86,7 +111,7 @@ if(isset($_GET['hal'])) {
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src="assets/syifa.jpg" alt="Profil User"  width="50" height="50" class="rounded-circle">
+          <img src="<?= $imgSrc ?>" alt="Profil User"  width="50" height="50" class="rounded-circle">
           <div><strong><?= $_SESSION['nama_user']?></strong></div>
           <small><?= $_SESSION['email_user']?></small>
         </div>

@@ -1,7 +1,8 @@
 <?php
+session_start();
 include_once 'koneksi.php';
 
-// Function untuk generate ID user (P0001, P0002, dst)
+// Fungsi untuk generate ID
 function generateUserId($conn) {
     $sql = "SELECT COUNT(*) AS total FROM pembeli";
     $result = mysqli_query($conn, $sql);
@@ -10,45 +11,64 @@ function generateUserId($conn) {
 }
 
 if (isset($_POST['daftar'])) {
-    $nama = $_POST['nama'] ?? '';
-    $email = $_POST['email'] ?? '';
+    $nama = trim($_POST['nama'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
+    $alamat = trim($_POST['alamat'] ?? '');
+    $no_telp = trim($_POST['no_telp'] ?? '');
+    $foto_profil = null;
 
-    // Validasi input
-    if (empty($nama) || empty($email) || empty($password)) {
-        echo "<script>alert('Semua field harus diisi!')</script>";
+    if (empty($nama) || empty($email) || empty($password) || empty($alamat) || empty($no_telp)) {
+        echo "<script>alert('Semua field harus diisi!');</script>";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<script>alert('Email tidak valid!');</script>";
     } else {
-        // Generate ID user dan role
-        $id_user = generateUserId($conn);
-        
-        // Hash password
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        // Cek duplikat email
+        $cek = $conn->prepare("SELECT email FROM pembeli WHERE email = ?");
+        $cek->bind_param("s", $email);
+        $cek->execute();
+        $cek->store_result();
 
-        // Simpan ke database dengan prepared statement
-        $stmt = $conn->prepare("INSERT INTO pembeli (id_pembeli, nama, email, password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $id_user, $nama, $email, $hashed_password);
-        
-        if ($stmt->execute()) {
-            echo "<script>alert('Registrasi berhasil! ID Anda: $id_user')</script>";
-            header("Location: login.php");
+        if ($cek->num_rows > 0) {
+            echo "<script>alert('Email sudah digunakan.');</script>";
         } else {
-            echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
+            $id_user = generateUserId($conn);
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+            // Baca isi file gambar
+            if (isset($_FILES['foto_profil']) && $_FILES['foto_profil']['error'] === UPLOAD_ERR_OK) {
+                $tmp = $_FILES['foto_profil']['tmp_name'];
+                $foto_profil = file_get_contents($tmp);
+            }
+
+            // Simpan ke database
+            $stmt = $conn->prepare("INSERT INTO pembeli (id_pembeli, nama, email, password, foto_profil, alamat, no_telp) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssss", $id_user, $nama, $email, $hashed_password, $foto_profil, $alamat, $no_telp);
+            $stmt->send_long_data(4, $foto_profil); // posisi ke-5 (index 4) = foto_profil
+
+            if ($stmt->execute()) {
+                $_SESSION['sukses_register'] = "Registrasi berhasil! Silakan login.";
+                header("Location: login.php");
+                exit();
+            } else {
+                echo "<script>alert('Gagal menyimpan data.');</script>";
+            }
+
+            $stmt->close();
         }
-        
-        $stmt->close();
+
+        $cek->close();
     }
 }
-
 $conn->close();
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login Page</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <title>Daftar - Kriuk Ayu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
 </head>
@@ -56,43 +76,42 @@ $conn->close();
   <div class="container min-vh-100 d-flex justify-content-center align-items-center">
     <div class="login-container w-100 mx-3 mx-md-auto">
       <div class="row align-items-center">
-        <!-- Gambar -->
-        <div class="col-md-6 text-center mb-4 mb-md-0">
-          <img src="assets/sign-up.png" alt="Login Illustration" class="login-image">
+        <div class="col-md-6 text-center mb-4">
+          <img src="assets/sign-up.png" alt="Ilustrasi" class="login-image">
         </div>
-        <!-- Form -->
         <div class="col-md-6">
           <h3 class="mb-4 text-center">Buat Akun Baru</h3>
-          <form method="post">
+          <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
               <label for="nama" class="form-label">Nama Lengkap</label>
-              <input type="text" id="nama" name="nama" class="form-control" placeholder="Nama Saya">
+              <input type="text" id="nama" name="nama" class="form-control" required>
             </div>
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
-              <input type="email" id="email" name="email" class="form-control" placeholder="namasaya@mail.com">
+              <input type="email" id="email" name="email" class="form-control" required>
             </div>
-
             <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="password" name="password" placeholder="password_anda@123">
-                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                </div>
+              <label for="password" class="form-label">Password</label>
+              <input type="password" id="password" name="password" class="form-control" required>
             </div>
-
-            <button type="submit" class="btn login-btn w-100 mb-2" name="daftar">Daftar</button>
-            <div class="text-center small-text">
-              Sudah punya akun? <a href="login.php">Masuk disini</a>
+            <div class="mb-3">
+              <label for="foto_profil" class="form-label">Foto Profil</label>
+              <input type="file" id="foto_profil" name="foto_profil" class="form-control">
             </div>
+            <div class="mb-3">
+              <label for="alamat" class="form-label">Alamat</label>
+              <textarea id="alamat" name="alamat" class="form-control" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="no_telp" class="form-label">No. Telepon</label>
+              <input type="tel" id="no_telp" name="no_telp" class="form-control" required>
+            </div>
+            <button type="submit" name="daftar" class="btn btn-primary w-100">Daftar</button>
+            <p class="text-center mt-2">Sudah punya akun? <a href="login.php">Masuk di sini</a></p>
           </form>
         </div>
       </div>
     </div>
   </div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-<script src="my_js/main.js"></script>
 </html>

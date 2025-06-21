@@ -2,7 +2,12 @@
 require_once 'koneksi.php';
 session_start();
 $id_pembeli = $_SESSION['id_user'];
-
+if (isset($_POST['logout'])) {
+  session_unset();
+  session_destroy();
+  header("Location: index.php");
+  exit();
+}
 /// Handle Upload Foto Profil
 if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
   $uploadDir = 'uploads/';
@@ -12,7 +17,7 @@ if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
   $fileError = $_FILES['fotoProfil']['error'];
 
   // Validasi file
-  $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+  $allowedExtensions = ['jpg', 'jpeg', 'png'];
   $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
   if (in_array($fileExt, $allowedExtensions)) {
@@ -112,10 +117,12 @@ $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
-// Masukkan data ke session jika belum ada
-$_SESSION['nama_user'] = $user['nama'];
-$_SESSION['email_user'] = $user['email'];
-$_SESSION['foto_profil'] = $user['foto_profil'];
+// Hanya isi ulang session kalau belum ada (untuk cegah timpa data dari user login baru)
+if (!isset($_SESSION['nama_user'])) {
+  $_SESSION['nama_user'] = $user['nama'];
+  $_SESSION['email_user'] = $user['email'];
+  $_SESSION['foto_profil'] = $user['foto_profil'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -158,7 +165,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
           <?php if (!empty($_SESSION['foto_profil']) && file_exists($_SESSION['foto_profil'])): ?>
             <img src="<?= $_SESSION['foto_profil'] ?>" alt="Profil User" width="50" height="50" class="rounded-circle">
           <?php else: ?>
-            <img src="assets/syifa.jpg" alt="Profil User" width="50" height="50" class="rounded-circle">
+            <img src="assets/default-profile.svg" alt="Profil User" width="50" height="50" class="rounded-circle">
           <?php endif; ?>
           <div><strong><?= $_SESSION['nama_user'] ?></strong></div>
           <small><?= $_SESSION['email_user'] ?></small>
@@ -182,9 +189,10 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
           </a>
         </nav>
         <div class="mt-auto">
-          <button class="btn btn-outline-danger w-100">
-            <i class="bi bi-box-arrow-right"></i> Logout
-          </button>
+          <form method="POST">
+            <button type="submit" name="logout" class="btn btn-outline-danger w-100">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
         </div>
       </div>
 

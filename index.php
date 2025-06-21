@@ -25,7 +25,7 @@ if (isset($_POST['logout'])) {
         <nav class="navbar navbar-expand-lg navbar-kriuk fixed-top" id="navbar-kriukAyu">
             <div class="container-fluid">
               <a class="navbar-brand" href="#">
-                <img src="assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" style="height: 40px; width: auto;" class="d-inline-block align-text-top"></a>
+                <img src="assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" width="auto" height="50" class="d-inline-block align-text-top"></a>
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -55,7 +55,7 @@ if (isset($_POST['logout'])) {
                 <?php else: ?>
                   <div class="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1" id="userProfile">
                     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="assets/syifa.jpg" alt="Foto Profil" width="28" height="28" class="rounded-circle">
+                        <img src=<?= $_SESSION['foto_profil']?> alt="Foto Profil" width="28" height="28" class="rounded-circle">
                         <span class="d-none d-sm-inline mx-1"><?= $_SESSION['nama_user'] ?? 'Pengguna'?></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">

@@ -5,28 +5,22 @@ if(isset($_POST['masuk'])) {
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // Validasi Form
     if (empty($email) || empty($password)) {
         echo "<script>alert('Semua field harus diisi!')</script>";
     } else {
-        $stmt = $conn->prepare("SELECT * FROM admin WHERE email = ?");
+        $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // Jika email ditemukan
         if ($result->num_rows > 0) {
             $user = $result->fetch_assoc();
-
-            // Jika password cocok
-            if ($password === $user['password']) {
+            if (password_verify($password, $user['password'])) {
                 session_start();
-                $_SESSION['id_admin'] = $user['id_admin'];
+                $_SESSION['id_user'] = $user['id_user'];
                 $_SESSION['nama_user'] = $user['nama'];
                 $_SESSION['email_user'] = $user['email'];
                 $_SESSION['logged_in'] = true;
-
-                // Redirect ke halaman
                 header("Location: dashboard.php");
                 exit();
             } else {
@@ -71,9 +65,9 @@ if(isset($_POST['masuk'])) {
                         <label for="password" class="form-label">Password</label>
                         <div class="input-group">
                             <input type="password" class="form-control" id="password" name="password" placeholder="password_anda@123">
-                            <!-- <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                 <i class="bi bi-eye"></i>
-                            </button> -->
+                            </button>
                         </div>
                     </div>
 

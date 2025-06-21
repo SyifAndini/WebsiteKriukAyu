@@ -1,5 +1,4 @@
 <?php
-require_once 'koneksi.php';
 session_start();
 $isLoggedIn = isset($_SESSION['logged_in']) ? $_SESSION['logged_in'] : false;;
 if (isset($_POST['logout'])) {
@@ -7,30 +6,6 @@ if (isset($_POST['logout'])) {
     session_destroy();
     header("Location: home.php");
     exit();
-}
-
-// Ambil foto dari DB
-$id = $_SESSION['id_user'] ?? null;
-
-if ($id) {
-    $stmt = $conn->prepare("SELECT foto_profil FROM pembeli WHERE id_pembeli = ?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $stmt->bind_result($foto);
-    $stmt->fetch();
-    $stmt->close();
-
-    if ($foto) {
-        // Encode foto ke base64
-        $base64Image = base64_encode($foto);
-        // Asumsi foto jpeg, sesuaikan jika png atau lainnya
-        $imgSrc = "data:image/jpeg;base64," . $base64Image;
-    } else {
-        // Jika tidak ada foto, pakai gambar default
-        $imgSrc = "assets/default-avatar.png";
-    }
-} else {
-    $imgSrc = "assets/default-avatar.png";
 }
 ?>
 
@@ -51,7 +26,6 @@ if ($id) {
             <div class="container-fluid">
               <a class="navbar-brand" href="#">
                 <img src="assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" style="height: 40px; width: auto;" class="d-inline-block align-text-top"></a>
-                 <!-- <span class="d-inline-block align-text-top">KRUIK.</span> -->
               <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
               </button>
@@ -81,10 +55,10 @@ if ($id) {
                 <?php else: ?>
                   <div class="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1" id="userProfile">
                     <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="<?= $imgSrc ?>" alt="Foto Profil" width="28" height="28" class="rounded-circle">
+                        <img src="assets/syifa.jpg" alt="Foto Profil" width="28" height="28" class="rounded-circle">
                         <span class="d-none d-sm-inline mx-1"><?= $_SESSION['nama_user'] ?? 'Pengguna'?></span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-light text-small shadow" aria-labelledby="dropdownUser1">
+                    <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
                         <li><a class="dropdown-item bi bi-person" href="profile.php">Lihat Profil</a></li>
                         <li><a class="dropdown-item "href="dashboard.php">Dashboard</a></li>
                         <li>
@@ -137,7 +111,7 @@ if ($id) {
             <h2 class="text-center mb-5 fw-bold">Aneka Kriuk</h2>
             <div class="row row-cols-1 row-cols-md-4 g-4 m-3">
                 <div class="col">
-                  <div class="card h-100 shadow p-3 mb-5 bg-body-tertiary rounded">
+                  <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
                     <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="Kriuk Otak-Otak">
                     <div class="card-body">
                       <h5 class="card-title">Otak-Otak</h5>
@@ -151,7 +125,7 @@ if ($id) {
                   </div>
                 </div>
                 <div class="col">
-                    <div class="card h-100 shadow p-3 mb-5 bg-body-tertiary rounded">
+                    <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
                       <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
                       <div class="card-body">
                         <h5 class="card-title">Makaroni</h5>
@@ -161,7 +135,7 @@ if ($id) {
                     </div>
                   </div>
                   <div class="col">
-                    <div class="card h-100 shadow p-3 mb-5 bg-body-tertiary rounded">
+                    <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
                       <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
                       <div class="card-body">
                         <h5 class="card-title">Kerupuk Seblak</h5>
@@ -171,7 +145,7 @@ if ($id) {
                     </div>
                   </div>
                   <div class="col">
-                    <div class="card h-100 shadow p-3 mb-5 bg-body-tertiary rounded">
+                    <div class="card shadow p-3 mb-5 bg-body-tertiary rounded">
                       <img src="assets/kriuk-basreng.jpg" class="card-img-top" alt="...">
                       <div class="card-body">
                         <h5 class="card-title">Emping Jagung</h5>

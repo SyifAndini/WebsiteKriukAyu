@@ -8,26 +8,28 @@ if(isset($_POST['masuk'])) {
     if (empty($email) || empty($password)) {
         echo "<script>alert('Semua field harus diisi!')</script>";
     } else {
-        $stmt = $conn->prepare("SELECT * FROM user WHERE email = ?");
+        $stmt = $conn->prepare("SELECT * FROM admin WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            $user = $result->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
+            $admin = $result->fetch_assoc();
+            if ($password == $admin['password']) {
                 session_start();
-                $_SESSION['id_user'] = $user['id_user'];
-                $_SESSION['nama_user'] = $user['nama'];
-                $_SESSION['email_user'] = $user['email'];
+                $_SESSION['id_admin'] = $admin['id_admin'];
+                $_SESSION['nama_admin'] = $admin['nama'];
+                $_SESSION['email_admin'] = $admin['email'];
+                $_SESSION['foto_profil'] = $admin['foto_profil'];
+                $_SESSION['role'] = $admin['role'];
                 $_SESSION['logged_in'] = true;
-                header("Location: dashboard.php");
+                header("Location: dashboardAdmin.php");
                 exit();
             } else {
                 echo "<script>alert('Password salah!')</script>";
             }
         } else {
-            echo "<script>alert('Email tidak ditemukan!')</script>";
+            echo "<script>alert('Akun tidak ditemukan! Periksa kembali input Anda.')</script>";
         }
         $stmt->close();
     }

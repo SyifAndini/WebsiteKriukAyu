@@ -44,8 +44,6 @@ if (isset($_GET['hal'])) {
 
     if ($data) {
       //Jika data ditemukan, maka jumlah kriuk akan ditampilkan dalam modal
-
-
     }
   } else if ($_GET['hal'] == "hapus") {
     //Persiapan hapus data
@@ -58,12 +56,11 @@ if (isset($_GET['hal'])) {
     }
   }
 }
-function generateOrderId($conn)
+function generateOrderId()
 {
-  $query = "SELECT COUNT(*) AS total FROM pesanan";
-  $result = mysqli_query($conn, $query);
-  $row = mysqli_fetch_assoc($result);
-  return 'P' . str_pad(($row['total'] + 1), 4, '0', STR_PAD_LEFT);
+  $tanggalPesan = date("Ymd");
+  $angka = mt_rand(1, 99);
+  return 'TR' . $tanggalPesan . str_pad($angka, 2, "0", STR_PAD_LEFT);
 }
 // Hitung total harga dari semua kriuk yang ada di cart
 $total_query = "SELECT SUM(p.harga * c.jumlah) AS total FROM cart c JOIN produk p ON c.id_kriuk = p.id_kriuk WHERE c.id_pembeli = '$id_pembeli'";
@@ -74,33 +71,72 @@ $biaya_pengiriman = 10000; // Biaya tetap pengiriman
 $total_pembayaran = $subtotal_produk + $biaya_pengiriman;
 
 if (isset($_POST['buat_pesanan'])) {
-  $no_pesanan = generateOrderId($conn);
-  $status = "Sedang Diproses";
+  $no_pesanan = generateOrderId();
+  $metode_pembayaran = $_POST['metode_pembayaran'];
+  if ($_POST['metode_pembayaran'] !== "Cash On Delivery (COD)") {
+    $status = "Menunggu Konfirmasi";
+  } else {
+    $status = "Sedang Diproses";
+    $bukti_bayar = '';
+  }
 
-  // Ambil data dari cart
-  $query_cart = mysqli_query($conn, "SELECT cart.id_kriuk, cart.jumlah, produk.harga
+  // Handle foto bukti bayar
+  if (isset($_FILES['bukti_bayar'])) {
+    $uploadDir = 'uploads/';
+    $fileName = $_FILES['bukti_bayar']['name'];
+    $fileTmp = $_FILES['bukti_bayar']['tmp_name'];
+    $fileSize = $_FILES['bukti_bayar']['size'];
+    $fileError = $_FILES['bukti_bayar']['error'];
+
+    // Validasi file
+    $allowedExtensions = ['jpg', 'jpeg', 'png'];
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+    if (in_array($fileExt, $allowedExtensions)) {
+      if ($fileError === 0) {
+        if ($fileSize < 2000000) { // Maksimal 2MB
+          $tanggalHariIni = date("Ymd");
+          $uniq = uniqid(); // misalnya: 666034db408ec
+          $newFileName = 'buktiBayar_' . $tanggalHariIni . '_' . $uniq . "." . $fileExt;
+          $fileDestination = $uploadDir . $newFileName;
+          if (move_uploaded_file($fileTmp, $fileDestination)) {
+            $bukti_bayar = $fileDestination;
+            // Insert ke tabel pesanan (ringkasan)
+            mysqli_query($conn, "INSERT INTO pesanan (no_pesanan, id_pembeli, subtotal_produk, biaya_pengiriman, total, metode_pembayaran, bukti_bayar, status) 
+                     VALUES ('$no_pesanan', '$id_pembeli', $subtotal_produk, $biaya_pengiriman, $total_pembayaran, '$metode_pembayaran', '$bukti_bayar', '$status')");
+
+            // Ambil data dari cart
+            $query_cart = mysqli_query($conn, "SELECT cart.id_kriuk, cart.jumlah, produk.harga
                                    FROM cart 
                                    JOIN produk ON cart.id_kriuk = produk.id_kriuk 
                                    WHERE cart.id_pembeli = '$id_pembeli'");
-  // Insert ke tabel pesanan (ringkasan)
-  mysqli_query($conn, "INSERT INTO pesanan (no_pesanan, id_pembeli, subtotal_produk, biaya_pengiriman, total, status) 
-                     VALUES ('$no_pesanan', '$id_pembeli', $subtotal_produk, $biaya_pengiriman, $total_pembayaran, '$status')");
-
-
-  while ($row = mysqli_fetch_assoc($query_cart)) {
-    $id_kriuk = $row['id_kriuk'];
-    $jumlah = $row['jumlah'];
-    $harga = $row['harga'];
-    $subtotal = $jumlah * $harga;
-    // Insert ke item_pesanan
-    mysqli_query($conn, "INSERT INTO item_pesanan (no_pesanan, id_kriuk, jumlah, harga_akhir)
+            while ($row = mysqli_fetch_assoc($query_cart)) {
+              $id_kriuk = $row['id_kriuk'];
+              $jumlah = $row['jumlah'];
+              $harga = $row['harga'];
+              $subtotal = $jumlah * $harga;
+              // Insert ke item_pesanan
+              mysqli_query($conn, "INSERT INTO item_pesanan (no_pesanan, id_kriuk, jumlah, harga_akhir)
                          VALUES ('$no_pesanan', '$id_kriuk', $jumlah, $subtotal)");
-  }
+            }
 
-  // Kosongkan cart
-  mysqli_query($conn, "DELETE FROM cart WHERE id_pembeli = '$id_pembeli'");
-  echo "<script>alert(Pesanan Anda sudah masuk!)</script>";
-  header('Location: order.php');
+            // Kosongkan cart
+            mysqli_query($conn, "DELETE FROM cart WHERE id_pembeli = '$id_pembeli'");
+            $_SESSION['success'] = "Pesanan Anda sudah kami terima. Pantau terus pesananmu ya!";
+            // header('Location: dashboard.php');
+          } else {
+            $_SESSION['error'] = "Gagal mengupload file";
+          }
+        } else {
+          $_SESSION['error'] = "Ukuran file terlalu besar (maks 2MB)";
+        }
+      } else {
+        $_SESSION['error'] = "Error saat upload file";
+      }
+    } else {
+      $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
+    }
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -116,6 +152,30 @@ if (isset($_POST['buat_pesanan'])) {
 </head>
 
 <body>
+  <?php if (isset($_SESSION['success'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Berhasil!",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success",
+        });
+      });
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
+  <?php if (isset($_SESSION['error'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error",
+        })
+      });
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
   <!-- Overlay for mobile sidebar -->
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
@@ -168,7 +228,7 @@ if (isset($_POST['buat_pesanan'])) {
         <div class="order-box mt-4">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h6 class="m-0"><strong>Detail Pesanan</strong></h6>
-            <button class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Tambah Kriuk</button>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Tambah Kriuk</button>
           </div>
           <?php
           // ambil pesanan sementara (cart) dari database
@@ -198,8 +258,8 @@ if (isset($_POST['buat_pesanan'])) {
                       <td><?= $row['jumlah'] ?></td>
                       <td><?= number_format($row['total_harga'], 0, ',', '.') ?></td>
                       <td>
-                        <a href="order.php?hal=edit&id_cart=<?= $row['id_cart'] ?>" class="btn btn-warning">Edit</a>
-                        <a href="order.php?hal=hapus&id_cart=<?= $row['id_cart'] ?>" class="btn btn-danger">Hapus</a>
+                        <a href="order.php?hal=edit&id_cart=<?= $row['id_cart'] ?>" class="btn btn-sm btn-warning">Ubah Jumlah</a>
+                        <a href="order.php?hal=hapus&id_cart=<?= $row['id_cart'] ?>" class="btn btn-sm btn-danger">Hapus</a>
                       </td>
                     </tr>
                   <?php endwhile; ?>
@@ -217,7 +277,7 @@ if (isset($_POST['buat_pesanan'])) {
 
 
           <h6><strong>Informasi Pembeli</strong></h6>
-          <form method="post" action="">
+          <form method="post" action="" enctype="multipart/form-data">
             <div class="row mb-3">
               <div class="col-md-4 mb-3">
                 <label class="form-label">Nama Lengkap</label>
@@ -304,12 +364,10 @@ if (isset($_POST['buat_pesanan'])) {
                 </div>
               </div>
             </section>
-            <form id="uploadBuktiBayar" method="post" action="upload_bukti.php" enctype="multipart/form-data">
-              <div id="uploadBukti" class="mb-3 d-none">
-                <label for="buktiPembayaran" class="form-label">Upload Bukti Transfer:</label>
-                <input class="form-control" type="file" id="buktiPembayaran" name="bukti" accept="image/*" required>
-              </div>
-            </form>
+            <div id="uploadBukti" class="mb-3 d-none">
+              <label for="buktiPembayaran" class="form-label">Upload Bukti Transfer:</label>
+              <input class="form-control" type="file" id="buktiPembayaran" name="bukti_bayar" accept="image/*" required>
+            </div>
             <div class="text-end">
               <button type="submit" name="buat_pesanan" class="btn btn-success fw-bold">Buat Pesanan</button>
             </div>
@@ -360,6 +418,7 @@ if (isset($_POST['buat_pesanan'])) {
       </div>
     </div>
     <!-- Bootstrap JS & Sidebar Toggle -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="my_js/main.js"></script>
 </body>

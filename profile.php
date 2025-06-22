@@ -36,9 +36,6 @@ if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
     if ($fileError === 0) {
       if ($fileSize < 2000000) { // Maksimal 2MB
         $tanggalHariIni = date("Ymd");
-        $query = "SELECT COUNT(*) as total FROM pembeli WHERE foto_profil LIKE 'profile_{$tanggalHariIni}%'";
-        $result = mysqli_query($conn, $query);
-        $data = mysqli_fetch_assoc($result);
         $uniq = uniqid(); // misalnya: 666034db408ec
         $newFileName = 'profile_' . $tanggalHariIni . '_' . $uniq . "." . $fileExt;
         $fileDestination = $uploadDir . $newFileName;
@@ -72,7 +69,7 @@ if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
       $_SESSION['error'] = "Error saat upload file";
     }
   } else {
-    $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG, GIF)";
+    $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
   }
 
   // Redirect untuk menghindari resubmit form
@@ -362,4 +359,3 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
 </body>
 
 </html>
-<!-- Bootstrap JS & Sidebar Toggle -->

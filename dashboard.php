@@ -25,6 +25,30 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
 </head>
 
 <body>
+  <?php if (isset($_SESSION['error'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+  <?php if (isset($_SESSION['success'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Berhasil!",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
   <!-- Overlay for mobile sidebar -->
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
@@ -73,6 +97,9 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
         <h3>Pesanan Saya</h3>
         <!-- Jika belum pernah memesan -->
         <?php if (mysqli_num_rows($result) > 0): ?>
+          <div>
+            <a href="order.php" class="btn btn-primary mt-3 mb-3 text-right"><i class="bi bi-plus-circle me-1"></i> Buat Pesanan Baru</a>
+          </div>
           <div class="table-responsive">
             <table class="table table-bordered text-center">
               <thead>
@@ -94,7 +121,7 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
                     <td><?= number_format($pesanan['total'], 0, ',', '.') ?></td>
                     <td><?= $pesanan['status'] ?></td>
                     <td>
-                      <button class="btn btn-success">Pesanan Diterima</button>
+                      <button class="btn btn-success btn-sm">Pesanan Diterima</button>
                     </td>
                   </tr>
                 <?php endwhile; ?>
@@ -109,23 +136,16 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
               </div>
               <h4 class="mb-3 fw-bold">Belum Ada Pesanan</h4>
               <p class="text-muted">Anda belum pernah memesan kriuk.</p>
-              <p class="text-muted">Silakan klik tombol <strong>"Buat Pesanan"</strong> untuk mulai belanja!</p>
+              <p class="text-muted">Silakan klik tombol <strong>"Buat Pesanan"</strong> untuk mulai memesan!</p>
               <a href="order.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle me-1"></i> Buat Pesanan Sekarang</a>
             </div>
           </div>
-
         <?php endif; ?>
       </div>
       <!-- Bootstrap JS & Sidebar Toggle -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
       <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-      <script>
-        function toggleSidebar() {
-          const sidebar = document.getElementById("sidebar");
-          const overlay = document.getElementById("overlay");
-          sidebar.classList.toggle("show");
-          overlay.classList.toggle("show");
-        }
-      </script>
+      <script src="my_js/main.js"></script>
 </body>
 
 </html>

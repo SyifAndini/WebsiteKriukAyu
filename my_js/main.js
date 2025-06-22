@@ -36,7 +36,7 @@ function tampilkanMetode() {
     document.getElementById("cardEWallet").classList.remove("d-none");
     document.getElementById("uploadBukti").classList.remove("d-none");
   }
-  document.querySelector("input[name='bukti_pembayaran']").required =
+  document.querySelector("input[name='bukti_bayar']").required =
     metode !== "Cash On Delivery (COD)";
 }
 

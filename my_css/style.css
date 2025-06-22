@@ -6,9 +6,23 @@ body {
   background-color: #59a96a; /* Hijau segar */
 }
 
-.navbar-brand,
-.nav-link {
+.nav-scroll {
   color: white;
+  text-decoration: none;
+}
+
+.nav-scroll:hover {
+  color: #fcb229;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 10px;
+}
+
+.nav-scroll.active {
+  color: #fcb229;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 10px;
 }
 
 .btn-kuning {
@@ -33,7 +47,7 @@ body {
 }
 
 .carousel-item img {
-  max-height: 450px; /* atau sesuaikan misalnya 400px, 300px */
+  height: 400px;
   object-fit: cover;
   object-position: center;
 }
@@ -145,4 +159,9 @@ nav > .nav-link.active {
   .overlay.show {
     display: block;
   }
+}
+.img-product {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
 }

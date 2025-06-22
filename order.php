@@ -2,6 +2,13 @@
 require_once 'koneksi.php';
 session_start();
 $id_pembeli = $_SESSION['id_user'];
+// Ambil data user dari database
+$query = "SELECT * FROM pembeli WHERE id_pembeli = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $id_pembeli);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
 
 if (isset($_POST['tambah_kriuk'])) {
   $jenis_kriuk = $_POST['jenisKriuk'] ?? '';
@@ -95,15 +102,6 @@ if (isset($_POST['buat_pesanan'])) {
   echo "<script>alert(Pesanan Anda sudah masuk!)</script>";
   header('Location: order.php');
 }
-
-// Ambil data user dari database
-$query = "SELECT * FROM pembeli WHERE id_pembeli = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_pembeli);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -129,7 +127,7 @@ $user = $result->fetch_assoc();
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src=<?=$_SESSION['foto_profil']?> alt="Profil User" width="50" height="50" class="rounded-circle">
+          <img src=<?= $_SESSION['foto_profil'] ?> alt="Profil User" width="50" height="50" class="rounded-circle">
           <div><strong><?= $_SESSION['nama_user'] ?></strong></div>
           <small><?= $_SESSION['email_user'] ?></small>
         </div>
@@ -238,8 +236,82 @@ $user = $result->fetch_assoc();
               <label class="form-label">Alamat Lengkap</label>
               <textarea class="form-control" rows="3"><?= $user['alamat'] ?></textarea>
             </div>
+            <div class="mb-3">
+              <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
+              <select name="metode_pembayaran" id="metode_pembayaran" class="form-control" required onchange="tampilkanMetode();">
+                <option value="" disabled selected>Pilih Metode Pembayaran</option>
+                <option value="Cash On Delivery (COD)">Cash On delivery (COD)</option>
+                <option value="Transfer Bank">Transfer Bank</option>
+                <option value="E-Wallet">E-Wallet (DANA/OVO)</option>
+              </select>
+            </div>
+            <section id="cardTransfer" class="card shadow-sm border-0 mb-4 d-none">
+              <div class="card-body text-center">
+                <h4 class="card-title mb-2"><i class="bi bi-bank"></i> Transfer Bank</h4>
+                <p class="mb-1">Bank <strong>BNI</strong></p>
+                <h3 class="text-primary fw-bold">0212 3345 464</h3>
+                <hr class="my-4">
+                <div class="text-start">
+                  <h6 class="fw-bold">Langkah-langkah Pembayaran:</h6>
+                  <ol class="ps-3">
+                    <li>Buka aplikasi Mobile Banking Anda</li>
+                    <li>Pilih transfer ke Bank BNI</li>
+                    <li>Masukkan nominal total pembayaran</li>
+                    <li>Upload bukti pembayaran di kolom yang disediakan</li>
+                  </ol>
+                </div>
+              </div>
+            </section>
+            <section id="cardEWallet" class="card shadow-sm border-0 mb-4 d-none">
+              <div class="card-body text-center">
+                <h4 class="card-title mb-2"><i class="bi bi-wallet2"></i> Pembayaran E-Wallet</h4>
+                <p class="mb-1">E-Wallet Tersedia:</p>
+                <div class="mb-3">
+                  <span class="badge bg-warning me-2"><i class="bi bi-phone"></i> DANA</span>
+                  <span class="badge bg-success"><i class="bi bi-phone"></i> OVO</span>
+                </div>
+                <h6 class="text-muted mb-1">Nomor Tujuan:</h6>
+                <h3 class="text-primary fw-bold">0812 3456 7890</h3>
+                <hr class="my-4">
+                <div class="text-start">
+                  <h6 class="fw-bold">Langkah-langkah Pembayaran:</h6>
+                  <ol class="ps-3">
+                    <li>Buka aplikasi DANA atau OVO di ponsel Anda</li>
+                    <li>Pilih menu Kirim / Transfer ke Sesama</li>
+                    <li>Masukkan nomor tujuan: <strong>0812 3456 7890</strong></li>
+                    <li>Masukkan nominal pembayaran sesuai tagihan</li>
+                    <li>Upload bukti pembayaran di kolom yang tersedia</li>
+                  </ol>
+                </div>
+              </div>
+            </section>
+            <section id="cardCOD" class="card shadow-sm border-0 mb-4 d-none">
+              <div class="card-body text-center">
+                <h4 class="card-title mb-2"><i class="bi bi-truck"></i> Bayar di Tempat (COD)</h4>
+                <p class="mb-3">Pembayaran dilakukan saat pesanan Anda sampai di alamat tujuan.</p>
+                <div class="alert alert-warning text-start" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <strong>Harap siapkan uang pas</strong> saat paket diterima, kurir tidak selalu membawa uang kembalian.
+                </div>
+                <div class="text-start">
+                  <h6 class="fw-bold">Langkah-langkah:</h6>
+                  <ol class="ps-3">
+                    <li>Lakukan pemesanan seperti biasa</li>
+                    <li>Pilih metode pembayaran <strong>COD (Bayar di Tempat)</strong></li>
+                    <li>Tunggu kurir mengantarkan pesanan ke alamat Anda</li>
+                    <li>Bayarkan total tagihan secara tunai saat paket diterima</li>
+                  </ol>
+                </div>
+              </div>
+            </section>
+            <form id="uploadBuktiBayar" method="post" action="upload_bukti.php" enctype="multipart/form-data">
+              <div id="uploadBukti" class="mb-3 d-none">
+                <label for="buktiPembayaran" class="form-label">Upload Bukti Transfer:</label>
+                <input class="form-control" type="file" id="buktiPembayaran" name="bukti" accept="image/*" required>
+              </div>
+            </form>
             <div class="text-end">
-              <button type="submit" name="buat_pesanan" class="btn btn-dark">Buat Pesanan</button>
+              <button type="submit" name="buat_pesanan" class="btn btn-success fw-bold">Buat Pesanan</button>
             </div>
           </form>
         </div>
@@ -289,14 +361,7 @@ $user = $result->fetch_assoc();
     </div>
     <!-- Bootstrap JS & Sidebar Toggle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      function toggleSidebar() {
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("overlay");
-        sidebar.classList.toggle("show");
-        overlay.classList.toggle("show");
-      }
-    </script>
+    <script src="my_js/main.js"></script>
 </body>
 
 </html>

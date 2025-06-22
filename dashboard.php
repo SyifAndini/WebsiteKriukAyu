@@ -53,10 +53,6 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
             <i class="bi bi-cart"></i>
             <span>Pesanan Saya</span>
           </a>
-          <a class="nav-link" href="order.php">
-            <i class="bi bi-plus-circle"></i>
-            <span>Buat Pesanan</span>
-          </a>
         </nav>
         <div class="mt-auto">
           <form method="POST">
@@ -75,45 +71,50 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
         <h4><strong>Halo, <?= $_SESSION['nama_user'] ?>!</strong></h4>
         <hr>
         <h3>Pesanan Saya</h3>
-        <a class="btn btn-primary" href="order.php">Buat Pesanan Baru</a>
         <!-- Jika belum pernah memesan -->
         <?php if (mysqli_num_rows($result) > 0): ?>
-  <div class="table-responsive">
-    <table class="table table-bordered text-center">
-      <thead>
-        <tr>
-          <th>No. Pesanan</th>
-          <th>Tanggal Pesan</th>
-          <th>Detail Pesanan</th>
-          <th>Total Pembayaran</th>
-          <th>Status</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php while ($pesanan = mysqli_fetch_assoc($result)): ?>
-          <tr>
-            <td><?= $pesanan['no_pesanan'] ?></td>
-            <td><?= $pesanan['tanggal'] ?></td>
-            <td><a href="#">Detail</a></td>
-            <td><?= number_format($pesanan['total'], 0, ',', '.') ?></td>
-            <td><?= $pesanan['status'] ?></td>
-            <td>
-              <button class="btn btn-success">Pesanan Diterima</button>
-            </td>
-          </tr>
-        <?php endwhile; ?>
-      </tbody>
-    </table>
-  </div>
-<?php else: ?>
-  <div class="alert alert-info text-center" role="alert">
-    <p>Anda belum pernah memesan kriuk.</p>
-    <p>Silakan klik tombol "Buat Pesanan".</p>
-  </div>
-<?php endif; ?>
+          <div class="table-responsive">
+            <table class="table table-bordered text-center">
+              <thead>
+                <tr>
+                  <th>No. Pesanan</th>
+                  <th>Tanggal Pesan</th>
+                  <th>Detail Pesanan</th>
+                  <th>Total Pembayaran</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($pesanan = mysqli_fetch_assoc($result)): ?>
+                  <tr>
+                    <td><?= $pesanan['no_pesanan'] ?></td>
+                    <td><?= $pesanan['tanggal'] ?></td>
+                    <td><a href="#">Detail</a></td>
+                    <td><?= number_format($pesanan['total'], 0, ',', '.') ?></td>
+                    <td><?= $pesanan['status'] ?></td>
+                    <td>
+                      <button class="btn btn-success">Pesanan Diterima</button>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php else: ?>
+          <div class="card border-0 shadow-sm text-center py-5 px-4 mb-5">
+            <div class="card-body">
+              <div class="mb-4">
+                <i class="bi bi-cart-x-fill" style="font-size: 3rem; color: #6c757d;"></i>
+              </div>
+              <h4 class="mb-3 fw-bold">Belum Ada Pesanan</h4>
+              <p class="text-muted">Anda belum pernah memesan kriuk.</p>
+              <p class="text-muted">Silakan klik tombol <strong>"Buat Pesanan"</strong> untuk mulai belanja!</p>
+              <a href="order.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle me-1"></i> Buat Pesanan Sekarang</a>
+            </div>
+          </div>
 
-
+        <?php endif; ?>
       </div>
       <!-- Bootstrap JS & Sidebar Toggle -->
       <script src="bootstrap/js/bootstrap.bundle.min.js"></script>

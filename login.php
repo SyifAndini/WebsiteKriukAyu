@@ -69,7 +69,7 @@ if (isset($_POST['masuk'])) {
               <label for="password" class="form-label">Password</label>
               <div class="input-group">
                 <input type="password" class="form-control" id="password" name="password" placeholder="password_anda@123">
-                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
                   <i class="bi bi-eye"></i>
                 </button>
               </div>
@@ -84,8 +84,8 @@ if (isset($_POST['masuk'])) {
       </div>
     </div>
   </div>
+  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="my_js/main.js"></script>
 </body>
-<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="my_js/main.js"></script>
 
 </html>

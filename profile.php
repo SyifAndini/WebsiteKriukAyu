@@ -2,12 +2,24 @@
 require_once 'koneksi.php';
 session_start();
 $id_pembeli = $_SESSION['id_user'];
+function getUser($conn, $id_pembeli)
+{
+  $stmt = $conn->prepare("SELECT * FROM pembeli WHERE id_pembeli = ?");
+  $stmt->bind_param("s", $id_pembeli);
+  $stmt->execute();
+  return $stmt->get_result()->fetch_assoc();
+}
+
+$user = getUser($conn, $id_pembeli);
+
+// Handle Logout
 if (isset($_POST['logout'])) {
   session_unset();
   session_destroy();
   header("Location: index.php");
   exit();
 }
+
 /// Handle Upload Foto Profil
 if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
   $uploadDir = 'uploads/';
@@ -23,7 +35,12 @@ if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
   if (in_array($fileExt, $allowedExtensions)) {
     if ($fileError === 0) {
       if ($fileSize < 2000000) { // Maksimal 2MB
-        $newFileName = uniqid('profile_', true) . '.' . $fileExt;
+        $tanggalHariIni = date("Ymd");
+        $query = "SELECT COUNT(*) as total FROM pembeli WHERE foto_profil LIKE 'profile_{$tanggalHariIni}%'";
+        $result = mysqli_query($conn, $query);
+        $data = mysqli_fetch_assoc($result);
+        $uniq = uniqid(); // misalnya: 666034db408ec
+        $newFileName = 'profile_' . $tanggalHariIni . '_' . $uniq . "." . $fileExt;
         $fileDestination = $uploadDir . $newFileName;
 
         if (move_uploaded_file($fileTmp, $fileDestination)) {
@@ -73,13 +90,14 @@ if (isset($_POST['simpan_info'])) {
   $query = "UPDATE pembeli SET nama = ?, email = ?, no_telp = ?, alamat = ?
               WHERE id_pembeli = ?";
   $stmt = $conn->prepare($query);
-  $stmt->bind_param("ssssi", $nama, $email, $no_telp, $alamat, $id_pembeli);
+  $stmt->bind_param("sssss", $nama, $email, $no_telp, $alamat, $id_pembeli);
   $stmt->execute();
   if ($stmt->execute()) {
-    echo "<script>alert('Data berhasil diperbarui!')</script>";
+    $_SESSION['success'] = "Data berhasil diperbarui!";
+    $user = getUser($conn, $id_pembeli);
     header("Location: profile.php");
   } else {
-    echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
+    $_SESSION['error'] = "Error: " . addslashes($stmt->error);
   }
 }
 
@@ -96,33 +114,23 @@ if (isset($_POST['simpan_password'])) {
       $stmt->bind_param("ss", $hashed_password, $id_pembeli);
 
       if ($stmt->execute()) {
-        echo "<script>alert('Password Anda berhasil diubah!')</script>";
+        $_SESSION['success'] = "Kata sandi berhasil diubah!";
         header("Location: profile.php");
       } else {
-        echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
+        $_SESSION['error'] = "Error: " . addslashes($stmt->error);
       }
 
       $stmt->close();
     }
   } else {
-    echo "<script>alert('Password lama Anda tidak sesuai! Mohon cek kembali.')</script>";
+    $_SESSION['error'] = "Password lama Anda tidak sesuai, mohon cek kembali!";
   }
 }
 
-// Ambil data user dari database
-$query = "SELECT * FROM pembeli WHERE id_pembeli = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_pembeli);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
+$_SESSION['nama_user'] = $user['nama'];
+$_SESSION['email_user'] = $user['email'];
+$_SESSION['foto_profil'] = $user['foto_profil'];
 
-// Hanya isi ulang session kalau belum ada (untuk cegah timpa data dari user login baru)
-if (!isset($_SESSION['nama_user'])) {
-  $_SESSION['nama_user'] = $user['nama'];
-  $_SESSION['email_user'] = $user['email'];
-  $_SESSION['foto_profil'] = $user['foto_profil'];
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -138,16 +146,28 @@ if (!isset($_SESSION['nama_user'])) {
 
 <body>
   <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger position-fixed" role="alert">
-      <?= $_SESSION['error']; ?>
-    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error"
+        });
+      });
+    </script>
     <?php unset($_SESSION['error']); ?>
   <?php endif; ?>
 
   <?php if (isset($_SESSION['success'])): ?>
-    <div class="alert alert-success position-fixed" role="alert">
-      <?= $_SESSION['success']; ?>
-    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Ubah Data Berhasil!",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success"
+        });
+      });
+    </script>
     <?php unset($_SESSION['success']); ?>
   <?php endif; ?>
 
@@ -183,16 +203,13 @@ if (!isset($_SESSION['nama_user'])) {
             <i class="bi bi-cart"></i>
             <span>Pesanan Saya</span>
           </a>
-          <a class="nav-link" href="order.php">
-            <i class="bi bi-plus-circle"></i>
-            <span>Buat Pesanan</span>
-          </a>
         </nav>
         <div class="mt-auto">
           <form method="POST">
             <button type="submit" name="logout" class="btn btn-outline-danger w-100">
               <i class="bi bi-box-arrow-right"></i> Logout
             </button>
+          </form>
         </div>
       </div>
 
@@ -251,16 +268,31 @@ if (!isset($_SESSION['nama_user'])) {
 
           <form method="post">
             <div class="mb-3">
-              <label class="form-label">Kata Sandi Lama</label>
-              <input type="password" name="old_pass" class="form-control">
+              <label for="old_pass" class="form-label">Kata Sandi Lama</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="old_pass" name="old_pass" placeholder="Masukkan kata sandi lama Anda">
+                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="old_pass">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Kata Sandi Baru</label>
-              <input type="password" name="new_pass" class="form-control">
+              <label for="new_pass" class="form-label">Kata Sandi Baru</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="new_pass" name="new_pass" placeholder="Masukkan kata sandi baru Anda">
+                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_pass">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Konfirmasi Kata Sandi Baru</label>
-              <input type="password" name="confirm_pass" class="form-control">
+              <label for="confirm_pass" class="form-label">Konfirmasi Kata Sandi Baru</label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="confirm_pass" name="confirm_pass" placeholder="Masukkan kata sandi baru Anda">
+                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirm_pass">
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
             </div>
             <button type="submit" name="simpan_password" class="btn btn-primary">Simpan Perubahan</button>
           </form>
@@ -269,7 +301,7 @@ if (!isset($_SESSION['nama_user'])) {
         <!-- Hapus Akun Section -->
         <div class="profile-section">
           <h4><i class="bi bi-trash me-2"></i> Hapus Akun</h4>
-          <p class="text-muted mb-4">Setelah akun Anda dihapus, semua data Anda akan dihapus secara permanent.</p>
+          <p class="text-muted mb-4">Setelah akun Anda dihapus, semua data Anda akan dihapus secara permanen.</p>
 
           <!-- Button trigger modal -->
           <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
@@ -290,7 +322,7 @@ if (!isset($_SESSION['nama_user'])) {
                 <div class="modal-footer">
                   <form method="post" action="">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" name="hapus" class="btn btn-danger">Hapus Akun</button>
+                    <button type="button" name="hapus_akun" class="btn btn-danger">Hapus Akun</button>
                   </form>
                 </div>
               </div>
@@ -300,32 +332,34 @@ if (!isset($_SESSION['nama_user'])) {
       </div>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="my_js/main.js"></script>
+  <script>
+    setTimeout(function() {
+      const alertBox = document.querySelector('.alert');
+      if (alertBox) {
+        alertBox.classList.add('fade');
+        alertBox.classList.remove('show');
+
+        // Hapus elemen dari DOM setelah efek selesai (opsional)
+        setTimeout(() => alertBox.remove(), 500);
+      }
+    }, 2000); // 2000ms = 2 detik
+
+    document.getElementById('fotoProfil').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'Tidak ada file yang dipilih';
+      document.getElementById('fileName').textContent = fileName;
+    });
+    // Toggle sidebar on mobile       
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      sidebar.classList.toggle("show");
+      overlay.classList.toggle("show");
+    }
+  </script>
 </body>
 
 </html>
 <!-- Bootstrap JS & Sidebar Toggle -->
-<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-<script>
-  setTimeout(function() {
-    const alertBox = document.querySelector('.alert');
-    if (alertBox) {
-      alertBox.classList.add('fade');
-      alertBox.classList.remove('show');
-
-      // Hapus elemen dari DOM setelah efek selesai (opsional)
-      setTimeout(() => alertBox.remove(), 500);
-    }
-  }, 2000); // 2000ms = 2 detik
-
-  document.getElementById('fotoProfil').addEventListener('change', function(e) {
-    const fileName = e.target.files[0]?.name || 'Tidak ada file yang dipilih';
-    document.getElementById('fileName').textContent = fileName;
-  });
-  // Toggle sidebar on mobile       
-  function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-    sidebar.classList.toggle("show");
-    overlay.classList.toggle("show");
-  }
-</script>

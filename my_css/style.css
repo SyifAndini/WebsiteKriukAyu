@@ -165,3 +165,7 @@ nav > .nav-link.active {
   object-fit: cover;
   width: 100%;
 }
+
+.profile-section{
+  margin-bottom: 5rem;
+}

@@ -21,7 +21,6 @@ if(isset($_POST['masuk'])) {
                 $_SESSION['nama_admin'] = $admin['nama'];
                 $_SESSION['email_admin'] = $admin['email'];
                 $_SESSION['foto_profil'] = $admin['foto_profil'];
-                $_SESSION['role'] = $admin['role'];
                 $_SESSION['logged_in'] = true;
                 header("Location: dashboardAdmin.php");
                 exit();

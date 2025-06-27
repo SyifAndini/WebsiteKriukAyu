@@ -20,6 +20,18 @@ if (isset($_POST['logout'])) {
   exit();
 }
 
+// Handle hapus akun
+if (isset($_POST['hapus_akun'])) {
+  $hapus = mysqli_query($conn, "DELETE FROM pembeli WHERE id_pembeli = '$id_pembeli'");
+  if ($hapus) {
+    $_SESSION['success'] = "Hapus data berhasil! Akun anda telah terhapus.";
+  }
+  session_unset();
+  session_destroy();
+  header("Location: index.php");
+  exit();
+}
+
 /// Handle Upload Foto Profil
 if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
   $uploadDir = 'uploads/';
@@ -91,11 +103,12 @@ if (isset($_POST['simpan_info'])) {
   $stmt->execute();
   if ($stmt->execute()) {
     $_SESSION['success'] = "Data berhasil diperbarui!";
-    $user = getUser($conn, $id_pembeli);
-    header("Location: profile.php");
   } else {
     $_SESSION['error'] = "Error: " . addslashes($stmt->error);
   }
+  $stmt->close();
+  header("Location: profile.php");
+  exit();
 }
 
 if (isset($_POST['simpan_password'])) {
@@ -112,16 +125,16 @@ if (isset($_POST['simpan_password'])) {
 
       if ($stmt->execute()) {
         $_SESSION['success'] = "Kata sandi berhasil diubah!";
-        header("Location: profile.php");
       } else {
         $_SESSION['error'] = "Error: " . addslashes($stmt->error);
       }
-
       $stmt->close();
     }
   } else {
     $_SESSION['error'] = "Password lama Anda tidak sesuai, mohon cek kembali!";
   }
+  header("Location: profile.php");
+  exit();
 }
 
 $_SESSION['nama_user'] = $user['nama'];
@@ -159,7 +172,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
-          title: "Ubah Data Berhasil!",
+          title: "Berhasil",
           text: <?= json_encode($_SESSION['success']) ?>,
           icon: "success"
         });
@@ -240,19 +253,19 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
           <form method="post">
             <div class="mb-3">
               <label class="form-label">Nama Lengkap</label>
-              <input type="text" class="form-control" name="nama" value=<?= $user['nama'] ?>>
+              <input type="text" class="form-control" name="nama" value="<?= htmlspecialchars($user['nama']) ?>">
             </div>
             <div class="mb-3">
               <label class="form-label">Email</label>
-              <input type="email" class="form-control" name="email" value=<?= $user['email'] ?>>
+              <input type="email" class="form-control" name="email" value=<?= htmlspecialchars($user['email']) ?>>
             </div>
             <div class="mb-3">
               <label class="form-label">No. Telp</label>
-              <input type="tel" class="form-control" name="no_telp" value=<?= $user['no_telp'] ?>>
+              <input type="tel" class="form-control" name="no_telp" value=<?= htmlspecialchars($user['no_telp']) ?>>
             </div>
             <div class="mb-3">
               <label class="form-label">Alamat Domisili</label>
-              <textarea class="form-control" name="alamat" rows="3"><?= $user['alamat'] ?></textarea>
+              <textarea class="form-control" name="alamat" rows="3"><?= htmlspecialchars($user['alamat']) ?></textarea>
             </div>
 
             <button type="submit" name="simpan_info" class="btn btn-primary">Simpan Perubahan</button>

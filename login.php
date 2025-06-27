@@ -6,7 +6,7 @@ if (isset($_POST['masuk'])) {
   $password = $_POST['password'] ?? '';
 
   if (empty($email) || empty($password)) {
-    echo "<script>alert('Semua field harus diisi!')</script>";
+    $_SESSION['error'] = "Harap mengisi semua field!";
   } else {
     $stmt = $conn->prepare("SELECT * FROM pembeli WHERE email = ?");
     $stmt->bind_param("s", $email);
@@ -16,22 +16,23 @@ if (isset($_POST['masuk'])) {
     if ($result->num_rows > 0) {
       $user = $result->fetch_assoc();
       if (password_verify($password, $user['password'])) {
+        $_SESSION['success'] = "Anda berhasil masuk! Selamat berbelanja kriuk.";
         session_start();
         $_SESSION['id_user'] = $user['id_pembeli'];
         $_SESSION['nama_user'] = $user['nama'];
         $_SESSION['email_user'] = $user['email'];
         $_SESSION['foto_profil'] = $user['foto_profil'];
-        $_SESSION['role'] = 'Pembeli';
         $_SESSION['logged_in'] = true;
         header("Location: dashboard.php");
         exit();
       } else {
-        echo "<script>alert('Password salah!')</script>";
+        $_SESSION['error'] = "Password Anda tidak sesuai. Periksa kembali input Anda.";
       }
     } else {
-      echo "<script>alert('Email tidak ditemukan!')</script>";
+      $_SESSION['error'] = "Akun dengan email tersebut tidak terdaftar. Periksa kembali input Anda";
     }
     $stmt->close();
+    $conn->close();
   }
 }
 ?>
@@ -49,6 +50,31 @@ if (isset($_POST['masuk'])) {
 </head>
 
 <body class="login-bg">
+  <?php if (isset($_SESSION['error'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['success'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Berhasil!",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
   <div class="container min-vh-100 d-flex justify-content-center align-items-center">
     <div class="login-container w-100 mx-3 mx-md-auto">
       <div class="row align-items-center">
@@ -84,6 +110,7 @@ if (isset($_POST['masuk'])) {
       </div>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="my_js/main.js"></script>
 </body>

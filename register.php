@@ -1,7 +1,7 @@
 <?php
 include_once 'koneksi.php';
 
-// Function untuk generate ID user (P0001, P0002, dst)
+// Function untuk generate ID pembeli (P0001, P0002, dst)
 function generateUserId($conn)
 {
   $sql = "SELECT COUNT(*) AS total FROM pembeli";
@@ -17,10 +17,18 @@ if (isset($_POST['daftar'])) {
 
   // Validasi input
   if (empty($nama) || empty($email) || empty($password)) {
-    echo "<script>alert('Semua field harus diisi!')</script>";
+    $_SESSION['error'] = "Harap mengisi semua field!";
   } else {
-    // Generate ID user dan role
-    $id_user = generateUserId($conn);
+    // Generate ID pembeli
+    $id_pembeli = generateUserId($conn);
+
+    // Cek jika ID pembeli tidak ada dalam database
+    $result = mysqli_query($conn, "SELECT * FROM pembeli WHERE id_pembeli = '$id_pembeli'");
+    $jumlahBaris = mysqli_num_rows($result);
+    if ($jumlahBaris > 0) {
+      $id_pembeli += 1;
+    }
+    $result->close();
 
     // Hash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
@@ -30,17 +38,16 @@ if (isset($_POST['daftar'])) {
     $stmt->bind_param("ssss", $id_user, $nama, $email, $hashed_password);
 
     if ($stmt->execute()) {
-      echo "<script>alert('Registrasi berhasil! ID Anda: $id_user')</script>";
-      header("Location: login.php");
+      $_SESSION['success'] = "Akun Anda berhasil dibuat! Silakan masuk menggunakan info akun Anda.";
+      header('Location: login.php');
     } else {
-      echo "<script>alert('Error: " . addslashes($stmt->error) . "')</script>";
+      $_SESSION['error'] = "Error: " . addslashes($stmt->error);
+      header('Location: register.php');
     }
-
     $stmt->close();
+    $conn->close();
   }
 }
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -50,12 +57,37 @@ $conn->close();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Buat Akun Baru</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
 </head>
 
 <body class="login-bg">
+  <?php if (isset($_SESSION['error'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['success'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Berhasil!",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
   <div class="container min-vh-100 d-flex justify-content-center align-items-center">
     <div class="login-container w-100 mx-3 mx-md-auto">
       <div class="row align-items-center">
@@ -66,7 +98,7 @@ $conn->close();
         <!-- Form -->
         <div class="col-md-6">
           <h3 class="mb-4 text-center">Buat Akun Baru</h3>
-          <form method="post">
+          <form method="post" action="">
             <div class="mb-3">
               <label for="nama" class="form-label">Nama Lengkap</label>
               <input type="text" id="nama" name="nama" class="form-control" placeholder="Nama Saya">
@@ -79,7 +111,7 @@ $conn->close();
             <div class="mb-3">
               <label for="password" class="form-label">Password</label>
               <div class="input-group">
-                <input type="password" class="form-control" id="password" name="password" placeholder="password_anda@123">
+                <input type="password" class="form-control" id="password" name="password" placeholder="******">
                 <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
                   <i class="bi bi-eye"></i>
                 </button>
@@ -95,8 +127,9 @@ $conn->close();
       </div>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="my_js/main.js"></script>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-<script src="my_js/main.js"></script>
 
 </html>

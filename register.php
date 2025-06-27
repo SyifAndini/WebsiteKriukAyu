@@ -2,40 +2,76 @@
 include_once 'koneksi.php';
 
 // Function untuk generate ID pembeli (P0001, P0002, dst)
-function generateUserId($conn)
+function generateUserId()
 {
-  $sql = "SELECT COUNT(*) AS total FROM pembeli";
-  $result = mysqli_query($conn, $sql);
-  $row = mysqli_fetch_assoc($result);
-  return 'P' . str_pad(($row['total'] + 1), 4, '0', STR_PAD_LEFT);
+  return 'P' . str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT);
 }
 
 if (isset($_POST['daftar'])) {
   $nama = $_POST['nama'] ?? '';
   $email = $_POST['email'] ?? '';
   $password = $_POST['password'] ?? '';
+  $alamat = $_POST['alamat'] ?? '';
+  $no_telp = $_POST['no_telp'] ?? '';
 
   // Validasi input
-  if (empty($nama) || empty($email) || empty($password)) {
+  if (empty($nama) || empty($email) || empty($password) || empty($alamat) || empty($no_telp)) {
     $_SESSION['error'] = "Harap mengisi semua field!";
   } else {
+    // Handle Upload Foto Profil
+    if (isset($_FILES['fotoProfil'])) {
+      $uploadDir = 'uploads/';
+      $fileName = $_FILES['fotoProfil']['name'];
+      $fileTmp = $_FILES['fotoProfil']['tmp_name'];
+      $fileSize = $_FILES['fotoProfil']['size'];
+      $fileError = $_FILES['fotoProfil']['error'];
+
+      // Validasi file
+      $allowedExtensions = ['jpg', 'jpeg', 'png'];
+      $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+      if (in_array($fileExt, $allowedExtensions)) {
+        if ($fileError === 0) {
+          if ($fileSize < 2000000) { // Maksimal 2MB
+            $tanggalHariIni = date("Ymd");
+            $uniq = uniqid(); // misalnya: 666034db408ec
+            $newFileName = 'profile_' . $tanggalHariIni . '_' . $uniq . "." . $fileExt;
+            $fileDestination = $uploadDir . $newFileName;
+
+            if (move_uploaded_file($fileTmp, $fileDestination)) {
+              $foto_profil = $fileDestination;
+            } else {
+              $_SESSION['error'] = "Gagal mengupload file";
+            }
+          } else {
+            $_SESSION['error'] = "Ukuran file terlalu besar (maks 2MB)";
+          }
+        } else {
+          $_SESSION['error'] = "Error saat upload file";
+        }
+      } else {
+        $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
+      }
+    } else {
+      // Redirect untuk menghindari resubmit form
+      $foto_profil = 'assets/default-profile.svg';
+    }
     // Generate ID pembeli
-    $id_pembeli = generateUserId($conn);
+    $id_pembeli = generateUserId();
 
     // Cek jika ID pembeli tidak ada dalam database
     $result = mysqli_query($conn, "SELECT * FROM pembeli WHERE id_pembeli = '$id_pembeli'");
     $jumlahBaris = mysqli_num_rows($result);
     if ($jumlahBaris > 0) {
-      $id_pembeli += 1;
+      $id_pembeli = generateUserId();
     }
-    $result->close();
 
     // Hash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // Simpan ke database dengan prepared statement
-    $stmt = $conn->prepare("INSERT INTO pembeli (id_pembeli, nama, email, password) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $id_user, $nama, $email, $hashed_password);
+    $stmt = $conn->prepare("INSERT INTO pembeli (id_pembeli, nama, email, password, foto_profil, alamat, no_telp) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssssss", $id_pembeli, $nama, $email, $hashed_password, $foto_profil, $alamat, $no_telp);
 
     if ($stmt->execute()) {
       $_SESSION['success'] = "Akun Anda berhasil dibuat! Silakan masuk menggunakan info akun Anda.";
@@ -51,7 +87,7 @@ if (isset($_POST['daftar'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
   <meta charset="UTF-8">
@@ -98,7 +134,7 @@ if (isset($_POST['daftar'])) {
         <!-- Form -->
         <div class="col-md-6">
           <h3 class="mb-4 text-center">Buat Akun Baru</h3>
-          <form method="post" action="">
+          <form method="post" action="" enctype="multipart/form-data">
             <div class="mb-3">
               <label for="nama" class="form-label">Nama Lengkap</label>
               <input type="text" id="nama" name="nama" class="form-control" placeholder="Nama Saya">
@@ -116,6 +152,21 @@ if (isset($_POST['daftar'])) {
                   <i class="bi bi-eye"></i>
                 </button>
               </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="fotoProfil" class="form-label">Foto Profil</label>
+              <input type="file" id="fotoProfil" name="fotoProfil" class="hidden">
+            </div>
+
+            <div class="mb-3">
+              <label for="alamat" class="form-label">Alamat</label>
+              <textarea id="alamat" name="alamat" class="form-control" rows="3" placeholder="Jl. Mangga 2" required></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="no_telp" class="form-label">No. Telepon</label>
+              <input type="tel" id="no_telp" name="no_telp" class="form-control" placeholder="0812xxxx" required>
             </div>
 
             <button type="submit" class="btn login-btn w-100 mb-2" name="daftar">Daftar</button>

@@ -32,7 +32,7 @@ if (isset($_POST['hapus_akun'])) {
   exit();
 }
 
-/// Handle Upload Foto Profil
+// Handle Upload Foto Profil
 if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
   $uploadDir = 'uploads/';
   $fileName = $_FILES['fotoProfil']['name'];

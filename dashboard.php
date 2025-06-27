@@ -9,6 +9,21 @@ if (isset($_POST['logout'])) {
   exit();
 }
 
+// Handle pesanan selesai
+if (isset($_GET['action'])) {
+  if ($_GET['action'] == 'selesai') {
+    $status = mysqli_query($conn, "UPDATE pesanan SET status = 'Pesanan Selesai'
+    WHERE no_pesanan = '$_GET[no_pesanan]'");
+    if ($status) {
+      $_SESSION['success'] = 'Pesanan Anda telah selesai!';
+    } else {
+      $_SESSION['error'] = 'Pesanan Anda tidak dapat diselesaikan. Ada kesalahan dalam basis data.';
+    }
+  }
+  header('Location: dashboard.php');
+  exit();
+}
+
 // Tampilkan pesanan user
 $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pembeli'");
 ?>
@@ -19,7 +34,7 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard Pengguna</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
 </head>
@@ -95,7 +110,6 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
         <h4><strong>Halo, <?= $_SESSION['nama_user'] ?>!</strong></h4>
         <hr>
         <h3>Pesanan Saya</h3>
-        <!-- Jika belum pernah memesan -->
         <?php if (mysqli_num_rows($result) > 0): ?>
           <div>
             <a href="order.php" class="btn btn-primary mt-3 mb-3 text-right"><i class="bi bi-plus-circle me-1"></i> Buat Pesanan Baru</a>
@@ -117,11 +131,11 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
                   <tr>
                     <td><?= $pesanan['no_pesanan'] ?></td>
                     <td><?= $pesanan['tanggal'] ?></td>
-                    <td><a href="#">Detail</a></td>
+                    <td><a href="detail_pesanan.php?no_pesanan=<?= $pesanan['no_pesanan'] ?>">Detail</a></td>
                     <td><?= number_format($pesanan['total'], 0, ',', '.') ?></td>
                     <td><?= $pesanan['status'] ?></td>
                     <td>
-                      <button class="btn btn-success btn-sm">Pesanan Diterima</button>
+                      <a href="dashboard.php?action=selesai&no_pesanan=<?= $pesanan['no_pesanan'] ?>" class="btn btn-success btn-sm">Pesanan Diterima</button>
                     </td>
                   </tr>
                 <?php endwhile; ?>
@@ -129,6 +143,7 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
             </table>
           </div>
         <?php else: ?>
+          <!-- Jika belum pernah memesan -->
           <div class="card border-0 shadow-sm text-center py-5 px-4 mb-5">
             <div class="card-body">
               <div class="mb-4">

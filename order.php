@@ -123,7 +123,6 @@ if (isset($_POST['buat_pesanan'])) {
             // Kosongkan cart
             mysqli_query($conn, "DELETE FROM cart WHERE id_pembeli = '$id_pembeli'");
             $_SESSION['success'] = "Pesanan Anda sudah kami terima. Pantau terus pesananmu ya!";
-            // header('Location: dashboard.php');
           } else {
             $_SESSION['error'] = "Gagal mengupload file";
           }
@@ -137,6 +136,7 @@ if (isset($_POST['buat_pesanan'])) {
       $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
     }
   }
+  header('Location: dashboard.php');
 }
 ?>
 <!DOCTYPE html>
@@ -281,20 +281,20 @@ if (isset($_POST['buat_pesanan'])) {
             <div class="row mb-3">
               <div class="col-md-4 mb-3">
                 <label class="form-label">Nama Lengkap</label>
-                <input type="text" class="form-control" value=<?= $_SESSION['nama_user'] ?>>
+                <input type="text" class="form-control" value="<?= htmlspecialchars($_SESSION['nama_user']) ?>">
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" value=<?= $_SESSION['email_user'] ?>>
+                <input type="email" class="form-control" value=<?= htmlspecialchars($_SESSION['email_user']) ?>>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">No. HP</label>
-                <input type="text" class="form-control" value=<?= $user['no_telp'] ?>>
+                <input type="text" class="form-control" value=<?= htmlspecialchars($user['no_telp']) ?>>
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Alamat Lengkap</label>
-              <textarea class="form-control" rows="3"><?= $user['alamat'] ?></textarea>
+              <textarea class="form-control" rows="3"><?= htmlspecialchars($user['alamat']) ?></textarea>
             </div>
             <div class="mb-3">
               <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>
@@ -419,7 +419,7 @@ if (isset($_POST['buat_pesanan'])) {
     </div>
     <!-- Bootstrap JS & Sidebar Toggle -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="my_js/main.js"></script>
 </body>
 

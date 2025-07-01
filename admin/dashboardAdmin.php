@@ -2,11 +2,11 @@
 require_once '../koneksi.php';
 session_start();
 $id_admin = $_SESSION['id_admin'];
-if(isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Location: index.php");
-    exit();
+if (isset($_POST['logout'])) {
+  session_unset();
+  session_destroy();
+  header("Location: index.php");
+  exit();
 }
 
 // Ambil info admin
@@ -16,6 +16,7 @@ $admin = mysqli_fetch_assoc($query);
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,6 +25,7 @@ $admin = mysqli_fetch_assoc($query);
   <link rel="stylesheet" href="../bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../my_css/style.css">
 </head>
+
 <body>
   <!-- Overlay for mobile sidebar -->
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -36,37 +38,31 @@ $admin = mysqli_fetch_assoc($query);
           <h5><strong>Kriuk Ayu</strong></h5>
         </div>
         <div class="text-center mb-3">
-          <img src=<?=$admin['foto_profil']?> alt="Profil Admin"  width="50" height="50" class="rounded-circle">
-          <div><strong><?= $_SESSION['nama_admin']?></strong></div>
-          <small><?= $_SESSION['email_admin']?></small>
+          <img src=<?= $admin['foto_profil'] ?> alt="Profil Admin" width="50" height="50" class="rounded-circle">
+          <div><strong><?= $_SESSION['nama_admin'] ?></strong></div>
+          <small><?= $_SESSION['email_admin'] ?></small>
         </div>
         <nav class="nav flex-column mb-4">
-          <a class="nav-link" href="home.php">
-            <i class="bi bi-house"></i>
-              <span>Beranda</span>
-          </a>
-          <a class="nav-link" href="profile.php">
+          <a class="nav-link" href="profilAdmin.php">
             <i class="bi bi-person"></i>
-              <span>Profil Saya</span>
+            <span>Profil Saya</span>
           </a>
-          <a class="nav-link active" href="dashboard.php">
+          <a class="nav-link active" href="dashboardAdmin.php">
             <i class="bi bi-cart"></i>
-              <span>Pesanan Saya</span>
+            <span>Daftar Pesanan</span>
           </a>
-          <?php if($_SESSION['role'] === 'Super Admin'):?>
-          <a class="nav-link" href="order.php">
-            <i class="bi bi-person-gear"></i>
-              <span>Kelola Admin</span>
+          <a class="nav-link" href="pembayaran.php">
+            <i class="bi bi-cart"></i>
+            <span>Pembayaran</span>
           </a>
-          <?php endif;?>
         </nav>
         <div class="mt-auto">
-            <form method="POST">
-                <button type="submit" name="logout" class="btn btn-outline-danger w-100">
-                <i class="bi bi-box-arrow-right"></i> Logout
-                </button>
-            </form>
-         </div>
+          <form method="POST">
+            <button type="submit" name="logout" class="btn btn-outline-danger w-100">
+              <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+          </form>
+        </div>
       </div>
 
       <!-- Main Content -->
@@ -74,22 +70,23 @@ $admin = mysqli_fetch_assoc($query);
         <!-- Mobile Menu Button -->
         <button class="btn btn-outline-secondary d-lg-none mb-3" onclick="toggleSidebar()">☰ Menu</button>
 
-        <h4><strong>Halo, <?= $_SESSION['nama_admin']?>!</strong></h4>
+        <h4><strong>Halo, <?= $_SESSION['nama_admin'] ?>!</strong></h4>
         <hr>
         <h3>Info Pesanan</h3>
-                    <div class="alert alert-info text-center" role="alert">
-                        <p>Belum Ada Pesanan Masuk</p>
-                    </div>
+        <div class="alert alert-info text-center" role="alert">
+          <p>Belum Ada Pesanan Masuk</p>
+        </div>
       </div>
-  <!-- Bootstrap JS & Sidebar Toggle -->
-  <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("overlay");
-      sidebar.classList.toggle("show");
-      overlay.classList.toggle("show");
-    }
-  </script>
+      <!-- Bootstrap JS & Sidebar Toggle -->
+      <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+      <script>
+        function toggleSidebar() {
+          const sidebar = document.getElementById("sidebar");
+          const overlay = document.getElementById("overlay");
+          sidebar.classList.toggle("show");
+          overlay.classList.toggle("show");
+        }
+      </script>
 </body>
+
 </html>

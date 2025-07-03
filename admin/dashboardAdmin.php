@@ -12,6 +12,9 @@ if (isset($_POST['logout'])) {
 // Ambil info admin
 $query = mysqli_query($conn, "SELECT * FROM admin WHERE id_admin = '$id_admin'");
 $admin = mysqli_fetch_assoc($query);
+
+// Ambil daftar pesanan dari database
+$result = mysqli_query($conn, "SELECT * FROM pesanan WHERE status != 'Menunggu Konfirmasi'");
 ?>
 
 <!DOCTYPE html>
@@ -72,7 +75,51 @@ $admin = mysqli_fetch_assoc($query);
 
         <h4><strong>Halo, <?= $_SESSION['nama_admin'] ?>!</strong></h4>
         <hr>
-        <h3>Info Pesanan</h3>
+        <h3>Daftar Pesanan Kriuk</h3>
+        <?php if (mysqli_num_rows($result) > 0): ?>
+          <div class="table-responsive">
+            <table class="table table-bordered text-center">
+              <thead>
+                <tr>
+                  <th>No. Pesanan</th>
+                  <th>Tanggal Pesan</th>
+                  <th>ID Pembeli</th>
+                  <th>Detail Pesanan</th>
+                  <th>Total Pembayaran</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($pesanan = mysqli_fetch_assoc($result)): ?>
+                  <tr>
+                    <td><?= $pesanan['no_pesanan'] ?></td>
+                    <td><?= $pesanan['tanggal'] ?></td>
+                    <td><?= $pesanan['id_pembeli'] ?></td>
+                    <td><a href="detail_pesanan.php?no_pesanan=<?= $pesanan['no_pesanan'] ?>">Detail</a></td>
+                    <td><?= number_format($pesanan['total'], 0, ',', '.') ?></td>
+                    <td><?= $pesanan['status'] ?></td>
+                    <td>
+                      <a href="dashboardAdmin.php?action=selesai&no_pesanan=<?= $pesanan['no_pesanan'] ?>" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i></a>
+                      <a href="dashboardAdmin.php?action=selesai&no_pesanan=<?= $pesanan['no_pesanan'] ?>" class="btn btn-success btn-sm"><i class="bi bi-check-lg"></i></a>
+
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php else: ?>
+          <!-- Jika belum pernah memesan -->
+          <div class="card border-0 shadow-sm text-center py-5 px-4 mb-5">
+            <div class="card-body">
+              <div class="mb-4">
+                <i class="bi bi-cart-x-fill" style="font-size: 3rem; color: #6c757d;"></i>
+              </div>
+              <h4 class="mb-3 fw-bold">Belum Ada Pesanan Kriuk</h4>
+            </div>
+          </div>
+        <?php endif; ?>
         <div class="alert alert-info text-center" role="alert">
           <p>Belum Ada Pesanan Masuk</p>
         </div>

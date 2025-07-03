@@ -85,10 +85,9 @@ if (isset($_POST['simpan_info'])) {
     $no_telp = $_POST['no_telp'] ?? '';
     $alamat = $_POST['alamat'] ?? '';
 
-    $query = "UPDATE pembeli SET nama = ?, email = ?, no_telp = ?, alamat = ?
-              WHERE id_pembeli = ?";
+    $query = "UPDATE admin SET nama = ?, email = ? WHERE id_admin = ?";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssss", $nama, $email, $no_telp, $alamat, $id_pembeli);
+    $stmt->bind_param("sss", $nama, $email, $id_admin);
     $stmt->execute();
     if ($stmt->execute()) {
         $_SESSION['success'] = "Data berhasil diperbarui!";
@@ -105,12 +104,11 @@ if (isset($_POST['simpan_password'])) {
     $new_pass = $_POST['new_pass'] ?? '';
     $confirm_pass = $_POST['confirm_pass'] ?? '';
 
-    if (password_verify($old_pass, $user['password'])) {
+    if ($old_pass == $user['password']) {
         if ($new_pass == $confirm_pass) {
-            $hashed_password = password_hash($new_pass, PASSWORD_DEFAULT);
             // Simpan ke database dengan prepared statement
             $stmt = $conn->prepare("UPDATE admin SET password = ? WHERE id_admin = ?");
-            $stmt->bind_param("ss", $hashed_password, $id_pembeli);
+            $stmt->bind_param("ss", $new_pass, $id_admin);
 
             if ($stmt->execute()) {
                 $_SESSION['success'] = "Kata sandi berhasil diubah!";
@@ -118,9 +116,11 @@ if (isset($_POST['simpan_password'])) {
                 $_SESSION['error'] = "Error: " . addslashes($stmt->error);
             }
             $stmt->close();
+        } else {
+            $_SESSION['error'] = "Konfirmasi kata sandi tidak sama. Mohon cek kembali!";
         }
     } else {
-        $_SESSION['error'] = "Password lama Anda tidak sesuai, mohon cek kembali!";
+        $_SESSION['error'] = "Kata sandi lama Anda tidak sesuai. Mohon cek kembali!";
     }
     header("Location: profilAdmin.php");
     exit();
@@ -190,17 +190,17 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
                     <small><?= $_SESSION['email_user'] ?></small>
                 </div>
                 <nav class="nav flex-column mb-4">
-                    <a class="nav-link" href="index.php">
-                        <i class="bi bi-house"></i>
-                        <span>Beranda</span>
-                    </a>
-                    <a class="nav-link active" href="profile.php">
+                    <a class="nav-link active" href="profilAdmin.php">
                         <i class="bi bi-person"></i>
                         <span>Profil Saya</span>
                     </a>
-                    <a class="nav-link" href="dashboard.php">
+                    <a class="nav-link" href="dashboardAdmin.php">
                         <i class="bi bi-cart"></i>
-                        <span>Pesanan Saya</span>
+                        <span>Daftar Pesanan</span>
+                    </a>
+                    <a class="nav-link" href="pembayaran.php">
+                        <i class="bi bi-cart"></i>
+                        <span>Pembayaran</span>
                     </a>
                 </nav>
                 <div class="mt-auto">
@@ -292,8 +292,8 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="my_js/main.js"></script>
+    <script src="../bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../my_js/main.js"></script>
     <script>
         document.getElementById('fotoProfil').addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name || 'Tidak ada file yang dipilih';

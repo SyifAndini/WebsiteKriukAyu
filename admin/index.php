@@ -75,9 +75,6 @@ if (isset($_POST['masuk'])) {
             </div>
 
             <button type="submit" name="masuk" class="btn login-btn w-100 mb-2">Login</button>
-            <div class="text-center small-text">
-              Belum punya akun? <a href="register.php">Daftar disini</a>
-            </div>
           </form>
         </div>
       </div>

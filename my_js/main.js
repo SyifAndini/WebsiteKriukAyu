@@ -100,7 +100,7 @@ function konfirmasiSelesai(noPesanan) {
 
 function konfirmasiPengiriman(noPesanan) {
   Swal.fire({
-    title: "Konfirmasi Pembayaran?",
+    title: "Konfirmasi Pengiriman",
     text: `Apakah Anda yakin untuk mengantar pesanan ${noPesanan}?`,
     icon: "question",
     showCancelButton: true,
@@ -116,7 +116,7 @@ function konfirmasiPengiriman(noPesanan) {
 }
 function konfirmasiBatal(noPesanan) {
   Swal.fire({
-    title: "Tolak Pembayaran?",
+    title: "Batalkan Pesanan?",
     text: `Apakah Anda yakin untuk membatalkan pesanan ${noPesanan}?`,
     icon: "warning",
     showCancelButton: true,
@@ -144,6 +144,34 @@ function pesananSelesai(noPesanan) {
   }).then((result) => {
     if (result.isConfirmed) {
       window.location.href = `dashboard.php?action=selesai&no_pesanan=${noPesanan}`;
+    }
+  });
+}
+
+function ubahJumlah(idCart, namaKriuk, rasa, jumlahAwal) {
+  Swal.fire({
+    title: "Ubah Jumlah Pesanan",
+    html:
+      `<p><strong>Jenis Kriuk:</strong> ${namaKriuk}</p>` +
+      `<p><strong>Rasa:</strong> ${rasa}</p>` +
+      `<label>Jumlah:</label><br>` +
+      `<input type="number" id="jumlahInput" class="swal2-input" value="${jumlahAwal}" min="1">`,
+    showCancelButton: true,
+    confirmButtonText: "Simpan",
+    cancelButtonText: "Batal",
+    preConfirm: () => {
+      const newJumlah = document.getElementById("jumlahInput").value;
+      if (!newJumlah || newJumlah <= 0) {
+        Swal.showValidationMessage("Jumlah harus lebih dari 0");
+        return false;
+      }
+      return newJumlah;
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const jumlahBaru = result.value;
+      // Redirect dengan parameter jumlah baru
+      window.location.href = `order.php?hal=edit&id_cart=${idCart}&jumlah=${jumlahBaru}`;
     }
   });
 }

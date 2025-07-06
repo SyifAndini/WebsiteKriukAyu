@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../koneksi.php';
+include 'koneksi.php';
 
 if (!isset($_GET['no_pesanan'])) {
     echo "Nomor pesanan tidak ditemukan.";
@@ -24,7 +24,7 @@ if (!$data) {
 }
 
 // Ambil item pesanan
-$itemQuery = "SELECT i.jumlah, pr.jenis_kriuk, pr.harga
+$itemQuery = "SELECT i.jumlah, pr.jenis_kriuk, pr.rasa_kriuk, pr.harga
               FROM item_pesanan i
               JOIN produk pr ON i.id_kriuk = pr.id_kriuk
               WHERE i.no_pesanan = '$no_pesanan'";
@@ -38,8 +38,8 @@ $items = mysqli_query($conn, $itemQuery);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Detail Pesanan</title>
-    <link rel="icon" href="../assets/tortilla.png" type="image/x-icon">
-    <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 </head>
 
 <body class="bg-light">
@@ -63,7 +63,8 @@ $items = mysqli_query($conn, $itemQuery);
                     <table class="table table-bordered">
                         <thead class="table-light">
                             <tr>
-                                <th>Produk</th>
+                                <th>Jenis Kriuk</th>
+                                <th>Rasa Kriuk</th>
                                 <th>Harga</th>
                                 <th>Jumlah</th>
                                 <th>Subtotal</th>
@@ -77,6 +78,7 @@ $items = mysqli_query($conn, $itemQuery);
                                 $subtotal += $totalItem;
                                 echo "<tr>
                           <td>" . htmlspecialchars($item['jenis_kriuk']) . "</td>
+                          <td>" . htmlspecialchars($item['rasa_kriuk']) . "</td>
                           <td>Rp " . number_format($item['harga'], 0, ',', '.') . "</td>
                           <td>{$item['jumlah']}</td>
                           <td>Rp " . number_format($totalItem, 0, ',', '.') . "</td>
@@ -95,14 +97,14 @@ $items = mysqli_query($conn, $itemQuery);
                     <p><strong>Metode Pembayaran:</strong> <?= htmlspecialchars($data['metode_pembayaran']) ?></p>
                     <p><strong>Bukti Bayar:</strong><br>
                         <?php if (!empty($data['bukti_bayar'])): ?>
-                            <img src="../<?= htmlspecialchars($data['bukti_bayar']) ?>" alt="Bukti Bayar" class="img-thumbnail mt-2" width="250">
+                            <img src="<?= htmlspecialchars($data['bukti_bayar']) ?>" alt="Bukti Bayar" class="img-thumbnail mt-2" width="250">
                         <?php else: ?>
-                            <span class="text-muted">Tidak Ada</span>
+                            <span class="text-muted">Tidak ada</span>
                         <?php endif; ?>
                     </p>
                 </div>
 
-                <a href="dashboardAdmin.php" class="btn btn-secondary mt-3">Kembali</a>
+                <a href="dashboard.php" class="btn btn-secondary mt-3">Kembali</a>
             </div>
         </div>
     </div>

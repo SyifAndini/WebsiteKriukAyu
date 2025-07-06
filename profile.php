@@ -129,9 +129,11 @@ if (isset($_POST['simpan_password'])) {
         $_SESSION['error'] = "Error: " . addslashes($stmt->error);
       }
       $stmt->close();
+    } else{
+      $_SESSION['error'] = "Kata sandi baru dengan konfirmasi tidak sama, mohon cek kembali!";
     }
   } else {
-    $_SESSION['error'] = "Password lama Anda tidak sesuai, mohon cek kembali!";
+    $_SESSION['error'] = "Kata sandi lama Anda tidak sesuai, mohon cek kembali!";
   }
   header("Location: profile.php");
   exit();

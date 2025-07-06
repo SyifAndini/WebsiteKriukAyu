@@ -16,20 +16,27 @@ if (isset($_POST['tambah_kriuk'])) {
   $jumlah_kriuk = $_POST['jumlah'] ?? '';
 
   if (empty($jenis_kriuk) || empty($rasa_kriuk) || empty($jumlah_kriuk)) {
-    echo "<script>alert('Semua field harus diisi!')</script>";
+    $_SESSION['error'] = "Semua field harus diisi!";
+    header("Location: order.php");
+    exit();
   } else {
     // Ambil id_kriuk berdasarkan jenis dan rasa
     $query = mysqli_query($conn, "SELECT id_kriuk FROM produk WHERE jenis_kriuk = '$jenis_kriuk' AND rasa_kriuk = '$rasa_kriuk'");
     $data = mysqli_fetch_assoc($query);
     $id_kriuk = $data['id_kriuk'];
 
+    // cek apakah id_kriuk sudah pernah ditambahkan sebelumnya
+    $exist_id = mysqli_query($conn, "SELECT id_kriuk FROM cart WHERE id_kriuk = '$id_kriuk' && id_pembeli = '$id_pembeli'");
+    if (mysqli_num_rows($exist_id) == 1) {
+      $_SESSION['error'] = "Kriuk yang ingin ditambahkan sudah ada!";
+      header("Location: order.php");
+      exit();
+    }
     $query = "INSERT INTO cart (id_pembeli, id_kriuk, jumlah) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("ssi", $id_pembeli, $id_kriuk, $jumlah_kriuk);
     $stmt->execute();
     $stmt->close();
-
-    echo "<script>alert('Kriuk berhasil ditambahkan!')</script>";
     header("Location: order.php");
     exit();
   }
@@ -37,23 +44,17 @@ if (isset($_POST['tambah_kriuk'])) {
 
 if (isset($_GET['hal'])) {
   //Pengujian jika edit Data
-  if ($_GET['hal'] == "edit") {
-    //Tampilkan Data yang akan diedit
-    $tampil = mysqli_query($koneksi, "SELECT * FROM cart WHERE cart = '$_GET[id_cart]' ");
-    $data = mysqli_fetch_array($tampil);
-
-    if ($data) {
-      //Jika data ditemukan, maka jumlah kriuk akan ditampilkan dalam modal
-    }
-  } else if ($_GET['hal'] == "hapus") {
-    //Persiapan hapus data
-    $hapus = mysqli_query($conn, "DELETE FROM cart WHERE id_cart = '$_GET[id_cart]' ");
-    if ($hapus) {
-      echo "<script>
-                    alert('Kriuk Berhasil Dihapus!');
-                    document.location = 'order.php';
-                 </script>";
-    }
+  if ($_GET['hal'] == 'edit' && isset($_GET['id_cart'], $_GET['jumlah'])) {
+    $id_cart = $_GET['id_cart'];
+    $jumlah_baru = $_GET['jumlah'];
+    mysqli_query($conn, "UPDATE cart SET jumlah = $jumlah_baru WHERE id_cart = '$id_cart'");
+    header('Location: order.php');
+    exit();
+  }
+  if ($_GET['hal'] == "hapus") {
+    mysqli_query($conn, "DELETE FROM cart WHERE id_cart = '$_GET[id_cart]' ");
+    header('Location: order.php');
+    exit();
   }
 }
 function generateOrderId()
@@ -280,13 +281,19 @@ if (isset($_POST['buat_pesanan'])) {
                 </thead>
                 <tbody>
                   <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                    <?php
+                    $id_cart = $row['id_cart'];
+                    $jenis_kriuk = addslashes(htmlspecialchars($row['jenis_kriuk']));
+                    $rasa = addslashes(htmlspecialchars($row['rasa_kriuk']));
+                    $jumlah = $row['jumlah'];
+                    ?>
                     <tr>
-                      <td><?= $row['jenis_kriuk'] ?></td>
-                      <td><?= $row['rasa_kriuk'] ?></td>
-                      <td><?= $row['jumlah'] ?></td>
+                      <td><?= $jenis_kriuk ?></td>
+                      <td><?= $rasa ?></td>
+                      <td><?= $jumlah ?></td>
                       <td><?= number_format($row['total_harga'], 0, ',', '.') ?></td>
                       <td>
-                        <a href="order.php?hal=edit&id_cart=<?= $row['id_cart'] ?>" class="btn btn-sm btn-warning">Ubah Jumlah</a>
+                        <button class="btn btn-sm btn-warning" onclick="ubahJumlah('<?= $row['id_cart'] ?>', '<?= $jenis_kriuk ?>','<?= $rasa ?>',<?= $jumlah ?>)">Ubah Jumlah</button>
                         <a href="order.php?hal=hapus&id_cart=<?= $row['id_cart'] ?>" class="btn btn-sm btn-danger">Hapus</a>
                       </td>
                     </tr>

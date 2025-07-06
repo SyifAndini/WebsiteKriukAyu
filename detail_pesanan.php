@@ -24,7 +24,7 @@ if (!$data) {
 }
 
 // Ambil item pesanan
-$itemQuery = "SELECT i.jumlah, pr.jenis_kriuk, pr.harga
+$itemQuery = "SELECT i.jumlah, pr.jenis_kriuk, pr.rasa_kriuk, pr.harga
               FROM item_pesanan i
               JOIN produk pr ON i.id_kriuk = pr.id_kriuk
               WHERE i.no_pesanan = '$no_pesanan'";
@@ -63,7 +63,8 @@ $items = mysqli_query($conn, $itemQuery);
                     <table class="table table-bordered">
                         <thead class="table-light">
                             <tr>
-                                <th>Produk</th>
+                                <th>Jenis Kriuk</th>
+                                <th>Rasa Kriuk</th>
                                 <th>Harga</th>
                                 <th>Jumlah</th>
                                 <th>Subtotal</th>
@@ -77,6 +78,7 @@ $items = mysqli_query($conn, $itemQuery);
                                 $subtotal += $totalItem;
                                 echo "<tr>
                           <td>" . htmlspecialchars($item['jenis_kriuk']) . "</td>
+                          <td>". htmlspecialchars($item['rasa_kriuk']) . "</td>
                           <td>Rp " . number_format($item['harga'], 0, ',', '.') . "</td>
                           <td>{$item['jumlah']}</td>
                           <td>Rp " . number_format($totalItem, 0, ',', '.') . "</td>

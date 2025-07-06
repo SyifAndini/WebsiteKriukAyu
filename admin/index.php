@@ -22,13 +22,12 @@ if (isset($_POST['masuk'])) {
         $_SESSION['email_admin'] = $admin['email'];
         $_SESSION['foto_profil'] = $admin['foto_profil'];
         $_SESSION['logged_in'] = true;
-        header("Location: dashboardAdmin.php");
-        exit();
+        $_SESSION['success'] = "Anda berhasil masuk ke akun admin.";
       } else {
-        echo "<script>alert('Password salah!')</script>";
+        $_SESSION['error'] = "Password Anda tidak sesuai. Periksa kembali input Anda.";
       }
     } else {
-      echo "<script>alert('Akun tidak ditemukan! Periksa kembali input Anda.')</script>";
+      $_SESSION['error'] = "Tidak ada akun admin dengan email tersebut. Periksa kembali input Anda";
     }
     $stmt->close();
   }
@@ -49,6 +48,33 @@ if (isset($_POST['masuk'])) {
 </head>
 
 <body class="login-bg">
+  <?php if (isset($_SESSION['error'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['success'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Login Berhasil!",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success",
+          confirmButtonText: 'OK',
+          allowOutsideClick: false
+        }).then(() => window.location.href = 'dashboardAdmin.php');
+      });
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
   <div class="container min-vh-100 d-flex justify-content-center align-items-center">
     <div class="login-container w-100 mx-3 mx-md-auto">
       <div class="row align-items-center">
@@ -81,6 +107,7 @@ if (isset($_POST['masuk'])) {
       </div>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="../my_js/main.js"></script>
 </body>

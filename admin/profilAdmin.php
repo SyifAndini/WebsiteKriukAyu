@@ -104,7 +104,7 @@ if (isset($_POST['simpan_password'])) {
     $new_pass = $_POST['new_pass'] ?? '';
     $confirm_pass = $_POST['confirm_pass'] ?? '';
 
-    if ($old_pass == $user['password']) {
+    if ($old_pass == $admin['password']) {
         if ($new_pass == $confirm_pass) {
             // Simpan ke database dengan prepared statement
             $stmt = $conn->prepare("UPDATE admin SET password = ? WHERE id_admin = ?");
@@ -138,7 +138,7 @@ $_SESSION['foto_profil'] = $admin['foto_profil'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Profil Saya</title>
-    <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
+    <link rel="icon" href="../assets/tortilla.png" type="image/x-icon">
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../my_css/style.css">

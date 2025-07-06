@@ -46,3 +46,104 @@ function toggleSidebar() {
   sidebar.classList.toggle("show");
   overlay.classList.toggle("show");
 }
+
+function konfirmasiTolak(noPesanan) {
+  Swal.fire({
+    title: "Tolak Pembayaran?",
+    text: `Apakah Anda yakin ingin menolak pembayaran pesanan ${noPesanan}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Tolak",
+    cancelButtonText: "Kembali",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `pembayaran.php?action=tolak&no_pesanan=${noPesanan}`;
+    }
+  });
+}
+
+function konfirmasiTerima(noPesanan) {
+  Swal.fire({
+    title: "Konfirmasi Pembayaran?",
+    text: `Apakah Anda yakin ingin menerima pembayaran pesanan ${noPesanan}?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#198754",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Terima",
+    cancelButtonText: "Kembali",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `pembayaran.php?action=terima&no_pesanan=${noPesanan}`;
+    }
+  });
+}
+
+function konfirmasiSelesai(noPesanan) {
+  Swal.fire({
+    title: "Selesaikan Pesanan?",
+    text: `Apakah Anda yakin untuk menyelesaikan pesanan ${noPesanan}?\nPastikan pembeli telah menerima pesanannya`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#198754",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Selesaikan",
+    cancelButtonText: "Kembali",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `dashboardAdmin.php?action=selesai&no_pesanan=${noPesanan}`;
+    }
+  });
+}
+
+function konfirmasiPengiriman(noPesanan) {
+  Swal.fire({
+    title: "Konfirmasi Pembayaran?",
+    text: `Apakah Anda yakin untuk mengantar pesanan ${noPesanan}?`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#ffc107",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Antar Pesanan",
+    cancelButtonText: "Kembali",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `dashboardAdmin.php?action=antar&no_pesanan=${noPesanan}`;
+    }
+  });
+}
+function konfirmasiBatal(noPesanan) {
+  Swal.fire({
+    title: "Tolak Pembayaran?",
+    text: `Apakah Anda yakin untuk membatalkan pesanan ${noPesanan}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Batalkan Pesanan",
+    cancelButtonText: "Kembali",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `dashboardAdmin.php?action=batal&no_pesanan=${noPesanan}`;
+    }
+  });
+}
+
+function pesananSelesai(noPesanan) {
+  Swal.fire({
+    title: "Selesaikan Pesanan?",
+    text: `Apakah Anda sudah menerima pesanan ${noPesanan}? Cek kembali pesanan Anda.`,
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#198754",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Selesaikan",
+    cancelButtonText: "Kembali",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = `dashboard.php?action=selesai&no_pesanan=${noPesanan}`;
+    }
+  });
+}

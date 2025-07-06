@@ -16,6 +16,7 @@ if (isset($_POST['logout'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kriuk Ayu | Beranda</title>
+  <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
@@ -159,6 +160,27 @@ if (isset($_POST['logout'])) {
           </div>
         </div>
       </div>
+      <h3 class="text-center fw-bold mb-4">Pilihan Rasa</h3>
+      <div class="row justify-content-center g-3">
+        <div class="col-8 col-sm-4 col-md-3 col-lg-2">
+          <div class="d-flex align-items-center gap-2 border rounded-pill px-3 py-2 bg-light shadow-sm">
+            <img src="assets/corn.png" alt="Jagung Bakar" width="24">
+            <span class="fw-semibold">Jagung Bakar</span>
+          </div>
+        </div>
+        <div class="col-8 col-sm-4 col-md-3 col-lg-2">
+          <div class="d-flex align-items-center gap-2 border rounded-pill px-3 py-2 bg-light shadow-sm">
+            <img src="assets/sweetchili.png" alt="Pedas Manis" width="24">
+            <span class="fw-semibold">Pedas Manis</span>
+          </div>
+        </div>
+        <div class="col-8 col-sm-4 col-md-3 col-lg-2">
+          <div class="d-flex align-items-center gap-2 border rounded-pill px-3 py-2 bg-light shadow-sm">
+            <img src="assets/hotchili.png" alt="Ekstra Pedas" width="24">
+            <span class="fw-semibold">Ekstra Pedas</span>
+          </div>
+        </div>
+      </div>
     </section>
     <section id="cara-pesan" class="my-5">
       <div class="container text-center">
@@ -170,8 +192,9 @@ if (isset($_POST['logout'])) {
             <li>Isi data diri Anda untuk pembuatan akun</li>
             <li>Masuk ke akun yang telah dimiliki</li>
             <li>Pada dashboard pengguna, pilih menu Pesanan Saya dan klik "Buat Pesanan"</li>
-            <li>Isi form pemesanan dan kirim</li>
-            <li>Tunggu pesanan datang ke rumah Anda dan bayar di tempat.</li>
+            <li>Isi form pemesanan dan pilih metode pembayaran</li>
+            <li>Kirimkan form pesanan</li>
+            <li>Tunggu pesanan datang ke rumah Anda.</li>
           </ol>
         </div>
       </div>
@@ -189,7 +212,7 @@ if (isset($_POST['logout'])) {
               </div>
               <p>Kriuknya enak banget, ada rasa rempah-rempahnya tapi gak menyengat. Cocok dicemilin pas nugas.</p>
               <div class="mt-3">
-                <img src="https://picsum.photos/200/300" width="100" height="100" alt="avatar" class="rounded-circle mb-1" />
+                <img src="assets/default-profile.svg" width="50" height="50" alt="avatar" class="rounded-circle mb-1" />
                 <h6 class="fw-bold mb-0">Jennifer Kim</h6>
               </div>
             </div>
@@ -201,7 +224,7 @@ if (isset($_POST['logout'])) {
               </div>
               <p>Menurutku kriuk ini asinnya pas. Apalagi aku pribadi suka asin, jadinya suka banget! Oh iya, aku beli kriuk otak-otak rasa pedas manis ya. Kalian harus coba sih.</p>
               <div class="mt-3">
-                <img src="https://picsum.photos/200/300" width="100" height="100" alt="avatar" class="rounded-circle mb-1" />
+                <img src="assets/default-profile.svg" width="50" height="50" alt="avatar" class="rounded-circle mb-1" />
                 <h6 class="fw-bold mb-0">Nadhil</h6>
               </div>
             </div>
@@ -213,7 +236,7 @@ if (isset($_POST['logout'])) {
               </div>
               <p>IH!! KOK BISA SIH ADA KRIUK SEENAK INI WOY! Aku si anak kos ini kadang nyetok 3 bungkus kriuk buat camilan saat nugas. WORTH IT BGT! Mana kadang ada promo!</p>
               <div class="mt-3">
-                <img src="https://picsum.photos/200/300" width="100" height="100" alt="avatar" class="rounded-circle mb-1" />
+                <img src="assets/default-profile.svg" width="50" height="50" alt="avatar" class="rounded-circle mb-1" />
                 <h6 class="fw-bold mb-0">Frincess Naibaho</h6>
               </div>
             </div>
@@ -225,7 +248,7 @@ if (isset($_POST['logout'])) {
               </div>
               <p>Aku suka banget kriuk otak-otak rasa pedas manis karena gurih udah gitu gak terlalu pedas, cocok sama lidahku. Mungkin next aku coba kerupuk seblak ya?</p>
               <div class="mt-3">
-                <img src="https://picsum.photos/200/300" width="100" height="100" alt="avatar" class="rounded-circle mb-1" />
+                <img src="assets/default-profile.svg" width="50" height="50" alt="avatar" class="rounded-circle mb-1" />
                 <h6 class="fw-bold mb-0">Aulia</h6>
               </div>
             </div>
@@ -237,7 +260,7 @@ if (isset($_POST['logout'])) {
               </div>
               <p>Aku beli yang emping jagung pake bumbu jagung bakar, jadi double2 tuh rasanya. ENAK BGTT! tapi saran aja nih bumbunya dibanyakin ya jangan pelit-pelit.</p>
               <div class="mt-3">
-                <img src="https://picsum.photos/200/300" width="100" height="100" alt="avatar" class="rounded-circle mb-1" />
+                <img src="assets/default-profile.svg" width="50" height="50" alt="avatar" class="rounded-circle mb-1" />
                 <h6 class="fw-bold mb-0">Kenneth</h6>
               </div>
             </div>
@@ -249,7 +272,7 @@ if (isset($_POST['logout'])) {
               </div>
               <p>Enak sih kriuknya. Saya beli yang otak-otak pedas manis karena ga terlalu suka pedas. Tapi kemahalan ah 7ribu, kasih diskon dong!</p>
               <div class="mt-3">
-                <img src="https://picsum.photos/200/300" width="100" height="100" alt="avatar" class="rounded-circle mb-1" />
+                <img src="assets/default-profile.svg" width="50" height="50" alt="avatar" class="rounded-circle mb-1" />
                 <h6 class="fw-bold mb-0">Mahesa</h6>
               </div>
             </div>
@@ -267,7 +290,7 @@ if (isset($_POST['logout'])) {
             <img src="assets/kriuk-ayu-2.jpg" alt="Foto Proses Pembuatan" class="img-fluid rounded shadow-sm mb-4" style="max-height: 300px;">
           </div>
           <div class="col-md-6">
-            <p>
+            <p class="text-justify">
               Kriuk Ayu berdiri pada tahun 2024 karena adanya peluang pasar yang cukup besar dalam industri makanan ringan,
               khususnya camilan keripik yang digemari oleh berbagai kalangan. Berawal dari keinginan untuk menghadirkan produk
               camilan yang renyah, terjangkau, dan memiliki cita rasa khas Indonesia, Kriuk Ayu dikembangkan dengan mengutamakan

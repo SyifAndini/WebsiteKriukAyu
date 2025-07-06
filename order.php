@@ -71,73 +71,100 @@ $biaya_pengiriman = 10000; // Biaya tetap pengiriman
 $total_pembayaran = $subtotal_produk + $biaya_pengiriman;
 
 if (isset($_POST['buat_pesanan'])) {
-  $no_pesanan = generateOrderId();
-  $metode_pembayaran = $_POST['metode_pembayaran'];
-  if ($_POST['metode_pembayaran'] !== "Cash On Delivery (COD)") {
-    $status = "Menunggu Konfirmasi";
-  } else {
-    $status = "Sedang Diproses";
-    $bukti_bayar = '';
+  // Ambil data cart
+  $query_cart = mysqli_query($conn, "SELECT cart.id_kriuk, cart.jumlah, produk.harga
+                                     FROM cart 
+                                     JOIN produk ON cart.id_kriuk = produk.id_kriuk 
+                                     WHERE cart.id_pembeli = '$id_pembeli'");
+
+  if (mysqli_num_rows($query_cart) == 0) {
+    $_SESSION['error'] = "Belum ada kriuk yang dipesan! Tambahkan kriuk Anda.";
+    header('Location: order.php');
+    exit();
   }
 
-  // Handle foto bukti bayar
-  if (isset($_FILES['bukti_bayar'])) {
-    $uploadDir = 'uploads/';
-    $fileName = $_FILES['bukti_bayar']['name'];
-    $fileTmp = $_FILES['bukti_bayar']['tmp_name'];
-    $fileSize = $_FILES['bukti_bayar']['size'];
-    $fileError = $_FILES['bukti_bayar']['error'];
+  // Inisialisasi variabel dasar
+  $no_pesanan         = generateOrderId();
+  $metode_pembayaran  = $_POST['metode_pembayaran'];
+  $status             = ($metode_pembayaran === "Cash On Delivery (COD)") ? "Sedang Diproses" : "Menunggu Konfirmasi";
+  $bukti_bayar        = '';
 
-    // Validasi file
-    $allowedExtensions = ['jpg', 'jpeg', 'png'];
-    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+  // Ambil isi cart untuk disimpan ke item_pesanan
+  $cart_data = [];
+  while ($row = mysqli_fetch_assoc($query_cart)) {
+    $cart_data[] = [
+      'id_kriuk' => $row['id_kriuk'],
+      'jumlah' => $row['jumlah'],
+      'harga' => $row['harga'],
+      'subtotal' => $row['jumlah'] * $row['harga']
+    ];
+  }
 
-    if (in_array($fileExt, $allowedExtensions)) {
-      if ($fileError === 0) {
-        if ($fileSize < 2000000) { // Maksimal 2MB
-          $tanggalHariIni = date("Ymd");
-          $uniq = uniqid(); // misalnya: 666034db408ec
-          $newFileName = 'buktiBayar_' . $tanggalHariIni . '_' . $uniq . "." . $fileExt;
-          $fileDestination = $uploadDir . $newFileName;
-          if (move_uploaded_file($fileTmp, $fileDestination)) {
-            $bukti_bayar = $fileDestination;
-            // Insert ke tabel pesanan (ringkasan)
-            mysqli_query($conn, "INSERT INTO pesanan (no_pesanan, id_pembeli, subtotal_produk, biaya_pengiriman, total, metode_pembayaran, bukti_bayar, status) 
-                     VALUES ('$no_pesanan', '$id_pembeli', $subtotal_produk, $biaya_pengiriman, $total_pembayaran, '$metode_pembayaran', '$bukti_bayar', '$status')");
+  // HANDLE PEMBAYARAN BUKTI TRANSFER (KALAU BUKAN COD)
+  if ($metode_pembayaran !== "Cash On Delivery (COD)") {
+    if (isset($_FILES['bukti_bayar']) && $_FILES['bukti_bayar']['error'] === 0) {
+      $uploadDir = 'uploads/';
+      $fileName  = $_FILES['bukti_bayar']['name'];
+      $fileTmp   = $_FILES['bukti_bayar']['tmp_name'];
+      $fileSize  = $_FILES['bukti_bayar']['size'];
+      $fileExt   = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+      $allowed   = ['jpg', 'jpeg', 'png'];
 
-            // Ambil data dari cart
-            $query_cart = mysqli_query($conn, "SELECT cart.id_kriuk, cart.jumlah, produk.harga
-                                   FROM cart 
-                                   JOIN produk ON cart.id_kriuk = produk.id_kriuk 
-                                   WHERE cart.id_pembeli = '$id_pembeli'");
-            while ($row = mysqli_fetch_assoc($query_cart)) {
-              $id_kriuk = $row['id_kriuk'];
-              $jumlah = $row['jumlah'];
-              $harga = $row['harga'];
-              $subtotal = $jumlah * $harga;
-              // Insert ke item_pesanan
-              mysqli_query($conn, "INSERT INTO item_pesanan (no_pesanan, id_kriuk, jumlah, harga_akhir)
-                         VALUES ('$no_pesanan', '$id_kriuk', $jumlah, $subtotal)");
-            }
-
-            // Kosongkan cart
-            mysqli_query($conn, "DELETE FROM cart WHERE id_pembeli = '$id_pembeli'");
-            $_SESSION['success'] = "Pesanan Anda sudah kami terima. Pantau terus pesananmu ya!";
-          } else {
-            $_SESSION['error'] = "Gagal mengupload file";
-          }
-        } else {
-          $_SESSION['error'] = "Ukuran file terlalu besar (maks 2MB)";
-        }
-      } else {
-        $_SESSION['error'] = "Error saat upload file";
+      if (!in_array($fileExt, $allowed)) {
+        $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
+        header('Location: order.php');
+        exit();
       }
+
+      if ($fileSize > 2000000) {
+        $_SESSION['error'] = "Ukuran file terlalu besar (maks 2MB)";
+        header('Location: order.php');
+        exit();
+      }
+
+      $newFileName     = 'buktiBayar_' . date("Ymd") . '_' . uniqid() . '.' . $fileExt;
+      $fileDestination = $uploadDir . $newFileName;
+
+      if (!move_uploaded_file($fileTmp, $fileDestination)) {
+        $_SESSION['error'] = "Gagal mengupload file.";
+        header('Location: order.php');
+        exit();
+      }
+
+      $bukti_bayar = $fileDestination;
     } else {
-      $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
+      $_SESSION['error'] = "Mohon unggah bukti pembayaran terlebih dahulu!";
+      header('Location: order.php');
+      exit();
     }
   }
+
+  // INSERT PESANAN
+  $insertPesanan = mysqli_query($conn, "INSERT INTO pesanan 
+    (no_pesanan, id_pembeli, subtotal_produk, biaya_pengiriman, total, metode_pembayaran, bukti_bayar, status) 
+    VALUES 
+    ('$no_pesanan', '$id_pembeli', $subtotal_produk, $biaya_pengiriman, $total_pembayaran, '$metode_pembayaran', '$bukti_bayar', '$status')");
+
+  if (!$insertPesanan) {
+    $_SESSION['error'] = "Gagal membuat pesanan. Silakan coba lagi.";
+    header('Location: order.php');
+    exit();
+  }
+
+  // INSERT item_pesanan
+  foreach ($cart_data as $item) {
+    mysqli_query($conn, "INSERT INTO item_pesanan (no_pesanan, id_kriuk, jumlah, harga_akhir)
+                         VALUES ('$no_pesanan', '{$item['id_kriuk']}', {$item['jumlah']}, {$item['subtotal']})");
+  }
+
+  // HAPUS cart
+  mysqli_query($conn, "DELETE FROM cart WHERE id_pembeli = '$id_pembeli'");
+
+  $_SESSION['success'] = "Pesanan Anda sudah kami terima. Pantau terus pesananmu ya!";
   header('Location: dashboard.php');
+  exit();
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -146,7 +173,8 @@ if (isset($_POST['buat_pesanan'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Buat Pesanan Baru</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
 </head>
@@ -281,20 +309,20 @@ if (isset($_POST['buat_pesanan'])) {
             <div class="row mb-3">
               <div class="col-md-4 mb-3">
                 <label class="form-label">Nama Lengkap</label>
-                <input type="text" class="form-control" value="<?= htmlspecialchars($_SESSION['nama_user']) ?>">
+                <input type="text" class="form-control" value="<?= htmlspecialchars($_SESSION['nama_user']) ?>" disabled>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" value=<?= htmlspecialchars($_SESSION['email_user']) ?>>
+                <input type="email" class="form-control" value=<?= htmlspecialchars($_SESSION['email_user']) ?> disabled>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">No. HP</label>
-                <input type="text" class="form-control" value=<?= htmlspecialchars($user['no_telp']) ?>>
+                <input type="text" class="form-control" value=<?= htmlspecialchars($user['no_telp']) ?> disabled>
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Alamat Lengkap</label>
-              <textarea class="form-control" rows="3"><?= htmlspecialchars($user['alamat']) ?></textarea>
+              <textarea class="form-control" rows="3" disabled><?= htmlspecialchars($user['alamat']) ?></textarea>
             </div>
             <div class="mb-3">
               <label for="metode_pembayaran" class="form-label">Metode Pembayaran</label>

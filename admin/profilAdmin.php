@@ -10,7 +10,7 @@ function getUser($conn, $id_admin)
     return $stmt->get_result()->fetch_assoc();
 }
 
-$user = getUser($conn, $id_admin);
+$admin = getUser($conn, $id_admin);
 
 // Handle Logout
 if (isset($_POST['logout'])) {
@@ -126,9 +126,9 @@ if (isset($_POST['simpan_password'])) {
     exit();
 }
 
-$_SESSION['nama_user'] = $user['nama'];
-$_SESSION['email_user'] = $user['email'];
-$_SESSION['foto_profil'] = $user['foto_profil'];
+$_SESSION['nama_admin'] = $admin['nama'];
+$_SESSION['email_admin'] = $admin['email'];
+$_SESSION['foto_profil'] = $admin['foto_profil'];
 
 ?>
 <!DOCTYPE html>
@@ -138,6 +138,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Profil Saya</title>
+    <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../my_css/style.css">
@@ -186,8 +187,8 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
                     <?php else: ?>
                         <img src="assets/default-profile.svg" alt="Profil User" width="50" height="50" class="rounded-circle">
                     <?php endif; ?>
-                    <div><strong><?= $_SESSION['nama_user'] ?></strong></div>
-                    <small><?= $_SESSION['email_user'] ?></small>
+                    <div><strong><?= $_SESSION['nama_admin'] ?></strong></div>
+                    <small><?= $_SESSION['email_admin'] ?></small>
                 </div>
                 <nav class="nav flex-column mb-4">
                     <a class="nav-link active" href="profilAdmin.php">
@@ -199,8 +200,9 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
                         <span>Daftar Pesanan</span>
                     </a>
                     <a class="nav-link" href="pembayaran.php">
-                        <i class="bi bi-cart"></i>
+                        <i class="bi bi-wallet2"></i>
                         <span>Pembayaran</span>
+                    </a>
                     </a>
                 </nav>
                 <div class="mt-auto">
@@ -217,7 +219,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
                 <!-- Mobile Menu Button -->
                 <button class="btn btn-outline-secondary d-lg-none mb-3" onclick="toggleSidebar()">☰ Menu</button>
 
-                <h4><strong>Halo, <?= $_SESSION['nama_user'] ?>!</strong></h4>
+                <h4><strong>Halo, <?= $_SESSION['nama_admin'] ?>!</strong></h4>
                 <hr>
                 <div class="profile-section">
                     <h4><i class="bi bi-person me-2"></i> Foto Profil</h4>
@@ -242,11 +244,11 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
                     <form method="post">
                         <div class="mb-3">
                             <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" name="nama" value="<?= htmlspecialchars($user['nama']) ?>">
+                            <input type="text" class="form-control" name="nama" value="<?= htmlspecialchars($admin['nama']) ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" value=<?= htmlspecialchars($user['email']) ?>>
+                            <input type="email" class="form-control" name="email" value=<?= htmlspecialchars($admin['email']) ?>>
                         </div>
 
                         <button type="submit" name="simpan_info" class="btn btn-primary">Simpan Perubahan</button>

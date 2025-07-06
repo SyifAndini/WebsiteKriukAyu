@@ -17,7 +17,7 @@ if (isset($_GET['action'])) {
     if ($status) {
       $_SESSION['success'] = 'Pesanan Anda telah selesai!';
     } else {
-      $_SESSION['error'] = 'Pesanan Anda tidak dapat diselesaikan. Ada kesalahan dalam basis data.';
+      $_SESSION['error'] = 'Pesanan Anda tidak dapat diselesaikan. Coba lagi nanti.';
     }
   }
   header('Location: dashboard.php');
@@ -34,6 +34,7 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard Pengguna</title>
+  <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
@@ -135,7 +136,11 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
                     <td><?= number_format($pesanan['total'], 0, ',', '.') ?></td>
                     <td><?= $pesanan['status'] ?></td>
                     <td>
-                      <a href="dashboard.php?action=selesai&no_pesanan=<?= $pesanan['no_pesanan'] ?>" class="btn btn-success btn-sm">Pesanan Diterima</button>
+                      <div class="d-flex justify-content-center gap-2">
+                        <?php if ($pesanan['status'] == 'Sedang Diantar'): ?>
+                          <button onclick="pesananSelesai('<?= $pesanan['no_pesanan'] ?>')" class="btn btn-success btn-sm">Pesanan Diterima</button>
+                        <?php endif; ?>
+                      </div>
                     </td>
                   </tr>
                 <?php endwhile; ?>
@@ -157,7 +162,6 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE id_pembeli = '$id_pem
           </div>
         <?php endif; ?>
       </div>
-      <!-- Bootstrap JS & Sidebar Toggle -->
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
       <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
       <script src="my_js/main.js"></script>

@@ -38,7 +38,8 @@ $items = mysqli_query($conn, $itemQuery);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Detail Pesanan</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 </head>
 
 <body class="bg-light">
@@ -96,7 +97,7 @@ $items = mysqli_query($conn, $itemQuery);
                         <?php if (!empty($data['bukti_bayar'])): ?>
                             <img src="<?= htmlspecialchars($data['bukti_bayar']) ?>" alt="Bukti Bayar" class="img-thumbnail mt-2" width="250">
                         <?php else: ?>
-                            <span class="text-muted">Belum ada</span>
+                            <span class="text-muted">Tidak ada</span>
                         <?php endif; ?>
                     </p>
                 </div>

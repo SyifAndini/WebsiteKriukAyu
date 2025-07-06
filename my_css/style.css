@@ -166,6 +166,9 @@ nav > .nav-link.active {
   width: 100%;
 }
 
-.profile-section{
+.profile-section {
   margin-bottom: 5rem;
+}
+.dropdown-menu {
+  transform: translateX(-50px);
 }

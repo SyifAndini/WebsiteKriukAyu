@@ -137,6 +137,18 @@ if (isset($_POST['simpan_password'])) {
   exit();
 }
 
+// Handle Hapus Akun
+if (isset($_POST['hapus_akun'])) {
+  $hapusAkun = mysqli_query($conn, "DELETE FROM pembeli WHERE id_pembeli = '$id_pembeli'");
+  if ($hapusAkun) {
+    $_SESSION['success'] = "Hapus Akun berhasil. Anda tidak dapat menggunakan akun ini lagi.";
+  } else {
+    $_SESSION['error'] = "Tidak dapat menghapus akun Anda. Coba lagi nanti.";
+  }
+  header("Location: index.php");
+  exit();
+}
+
 $_SESSION['nama_user'] = $user['nama'];
 $_SESSION['email_user'] = $user['email'];
 $_SESSION['foto_profil'] = $user['foto_profil'];
@@ -149,6 +161,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Profil Saya</title>
+  <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
@@ -332,7 +345,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
                 <div class="modal-footer">
                   <form method="post" action="">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" name="hapus_akun" class="btn btn-danger">Hapus Akun</button>
+                    <button type="submit" name="hapus_akun" class="btn btn-danger">Hapus Akun</button>
                   </form>
                 </div>
               </div>

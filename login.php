@@ -16,15 +16,13 @@ if (isset($_POST['masuk'])) {
     if ($result->num_rows > 0) {
       $user = $result->fetch_assoc();
       if (password_verify($password, $user['password'])) {
-        $_SESSION['success'] = "Anda berhasil masuk! Selamat berbelanja kriuk.";
         session_start();
         $_SESSION['id_user'] = $user['id_pembeli'];
         $_SESSION['nama_user'] = $user['nama'];
         $_SESSION['email_user'] = $user['email'];
         $_SESSION['foto_profil'] = $user['foto_profil'];
         $_SESSION['logged_in'] = true;
-        header("Location: dashboard.php");
-        exit();
+        $_SESSION['success'] = "Anda berhasil masuk! Selamat memesan kriuk.";
       } else {
         $_SESSION['error'] = "Password Anda tidak sesuai. Periksa kembali input Anda.";
       }
@@ -43,8 +41,9 @@ if (isset($_POST['masuk'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login Page</title>
-  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <title>Masuk Ke Akun</title>
+  <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
 </head>
@@ -67,10 +66,12 @@ if (isset($_POST['masuk'])) {
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
-          title: "Berhasil!",
+          title: "Login Berhasil!",
           text: <?= json_encode($_SESSION['success']) ?>,
-          icon: "success"
-        });
+          icon: "success",
+          confirmButtonText: 'OK',
+          allowOutsideClick: false
+        }).then(() => window.location.href = 'dashboard.php');
       });
     </script>
     <?php unset($_SESSION['success']); ?>

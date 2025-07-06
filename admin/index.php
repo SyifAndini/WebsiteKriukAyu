@@ -41,8 +41,9 @@ if (isset($_POST['masuk'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login Page</title>
-  <link href="../bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <title>Masuk Akun Admin</title>
+  <link rel="icon" href="../assets/tortilla.png" type="image/x-icon">
+  <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="../my_css/style.css">
 </head>
@@ -68,7 +69,7 @@ if (isset($_POST['masuk'])) {
               <label for="password" class="form-label">Password</label>
               <div class="input-group">
                 <input type="password" class="form-control" id="password" name="password" placeholder="password_anda@123">
-                <button class="btn btn-outline-secondary toggle-password" type="button">
+                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
                   <i class="bi bi-eye"></i>
                 </button>
               </div>

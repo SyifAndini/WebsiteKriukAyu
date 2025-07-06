@@ -74,8 +74,7 @@ if (isset($_POST['daftar'])) {
     $stmt->bind_param("sssssss", $id_pembeli, $nama, $email, $hashed_password, $foto_profil, $alamat, $no_telp);
 
     if ($stmt->execute()) {
-      $_SESSION['success'] = "Akun Anda berhasil dibuat! Silakan masuk menggunakan info akun Anda.";
-      header('Location: login.php');
+      $_SESSION['success'] = "Silakan masuk menggunakan email dan password Anda.";
     } else {
       $_SESSION['error'] = "Error: " . addslashes($stmt->error);
       header('Location: register.php');
@@ -93,6 +92,7 @@ if (isset($_POST['daftar'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Buat Akun Baru</title>
+  <link rel="icon" href="assets/tortilla.png" type="image/x-icon">
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/bootstrap-icons/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="my_css/style.css">
@@ -116,10 +116,12 @@ if (isset($_POST['daftar'])) {
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         Swal.fire({
-          title: "Berhasil!",
+          title: "Akun Baru Berhasil Dibuat!",
           text: <?= json_encode($_SESSION['success']) ?>,
-          icon: "success"
-        });
+          icon: "success",
+          confirmButtonText: 'OK',
+          allowOutsideClick: false
+        }).then(() => window.location.href = 'login.php');
       });
     </script>
     <?php unset($_SESSION['success']); ?>

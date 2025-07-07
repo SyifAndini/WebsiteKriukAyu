@@ -239,7 +239,7 @@ if (isset($_POST['buat_pesanan'])) {
           </a>
         </nav>
         <div class="mt-auto">
-          <button class="btn btn-outline-danger w-100">
+          <button class="btn btn-outline-danger mb-5 w-100">
             <i class="bi bi-box-arrow-right"></i> Logout
           </button>
         </div>
@@ -401,7 +401,7 @@ if (isset($_POST['buat_pesanan'])) {
             </section>
             <div id="uploadBukti" class="mb-3 d-none">
               <label for="buktiPembayaran" class="form-label">Upload Bukti Transfer:</label>
-              <input class="form-control" type="file" id="buktiPembayaran" name="bukti_bayar" accept="image/*" required>
+              <input class="form-control" type="file" id="buktiPembayaran" name="bukti_bayar" accept=".jpg, .jpeg, .png" required>
             </div>
             <div class="text-end">
               <button type="submit" name="buat_pesanan" class="btn btn-success fw-bold">Buat Pesanan</button>

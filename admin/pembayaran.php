@@ -108,7 +108,7 @@ $result = mysqli_query($conn, "SELECT * FROM pesanan WHERE status = 'Menunggu Ko
                 </nav>
                 <div class="mt-auto">
                     <form method="POST">
-                        <button type="submit" name="logout" class="btn btn-outline-danger w-100">
+                        <button type="submit" name="logout" class="btn btn-outline-danger mb-5 w-100">
                             <i class="bi bi-box-arrow-right"></i> Logout
                         </button>
                     </form>

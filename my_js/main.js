@@ -47,6 +47,11 @@ function toggleSidebar() {
   overlay.classList.toggle("show");
 }
 
+document.getElementById("fotoProfil").addEventListener("change", function (e) {
+  const fileName = e.target.files[0]?.name || "Tidak ada file yang dipilih";
+  document.getElementById("fileName").textContent = fileName;
+});
+
 function konfirmasiTolak(noPesanan) {
   Swal.fire({
     title: "Tolak Pembayaran?",

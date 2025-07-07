@@ -169,6 +169,3 @@ nav > .nav-link.active {
 .profile-section {
   margin-bottom: 5rem;
 }
-.dropdown-menu {
-  transform: translateX(-50px);
-}

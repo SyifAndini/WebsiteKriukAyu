@@ -1,5 +1,6 @@
 <?php
 include_once 'koneksi.php';
+session_start();
 
 // Function untuk generate ID pembeli (P0001, P0002, dst)
 function generateUserId()
@@ -19,7 +20,7 @@ if (isset($_POST['daftar'])) {
     $_SESSION['error'] = "Harap mengisi semua field!";
   } else {
     // Handle Upload Foto Profil
-    if (isset($_FILES['fotoProfil'])) {
+    if (isset($_FILES['fotoProfil']) && $_FILES['fotoProfil']['error'] !== 4) {
       $uploadDir = 'uploads/';
       $fileName = $_FILES['fotoProfil']['name'];
       $fileTmp = $_FILES['fotoProfil']['tmp_name'];
@@ -42,18 +43,26 @@ if (isset($_POST['daftar'])) {
               $foto_profil = $fileDestination;
             } else {
               $_SESSION['error'] = "Gagal mengupload file";
+              header("Location: register.php");
+              exit();
             }
           } else {
             $_SESSION['error'] = "Ukuran file terlalu besar (maks 2MB)";
+            header("Location: register.php");
+            exit();
           }
         } else {
           $_SESSION['error'] = "Error saat upload file";
+          header("Location: register.php");
+          exit();
         }
       } else {
         $_SESSION['error'] = "Format file tidak didukung (hanya JPG, JPEG, PNG)";
+        header("Location: register.php");
+        exit();
       }
     } else {
-      // Redirect untuk menghindari resubmit form
+      // Foto default jika user tidak memasukkan foto
       $foto_profil = 'assets/default-profile.svg';
     }
     // Generate ID pembeli
@@ -75,6 +84,8 @@ if (isset($_POST['daftar'])) {
 
     if ($stmt->execute()) {
       $_SESSION['success'] = "Silakan masuk menggunakan email dan password Anda.";
+      header('Location: register.php');
+      exit();
     } else {
       $_SESSION['error'] = "Error: " . addslashes($stmt->error);
       header('Location: register.php');
@@ -158,7 +169,8 @@ if (isset($_POST['daftar'])) {
 
             <div class="mb-3">
               <label for="fotoProfil" class="form-label">Foto Profil</label>
-              <input type="file" id="fotoProfil" name="fotoProfil" class="hidden">
+              <input type="file" id="fotoProfil" name="fotoProfil" accept=".jpg, .jpeg, .png" class="hidden">
+              <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal ukuran foto 2 MB.</small>
             </div>
 
             <div class="mb-3">

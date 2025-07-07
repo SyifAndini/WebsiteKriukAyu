@@ -34,6 +34,12 @@ if (isset($_POST['hapus_akun'])) {
 
 // Handle Upload Foto Profil
 if (isset($_POST['simpan_foto']) && isset($_FILES['fotoProfil'])) {
+  if ($_FILES['fotoProfil']['error'] === 4) {
+    $_SESSION['error'] = "Tidak ada file foto. Silakan pilih foto terlebih dahulu";
+    header("Location: profile.php");
+    exit();
+  }
+
   $uploadDir = 'uploads/';
   $fileName = $_FILES['fotoProfil']['name'];
   $fileTmp = $_FILES['fotoProfil']['tmp_name'];
@@ -115,6 +121,11 @@ if (isset($_POST['simpan_password'])) {
   $old_pass = $_POST['old_pass'] ?? '';
   $new_pass = $_POST['new_pass'] ?? '';
   $confirm_pass = $_POST['confirm_pass'] ?? '';
+  if (empty($old_pass) || empty($new_pass) || empty($confirm_pass)) {
+    $_SESSION['error'] = "Tidak ada kata sandi yang dimasukkan. Silakan isi kata sandi terlebih dahulu.";
+    header("Location: profile.php");
+    exit();
+  }
 
   if (password_verify($old_pass, $user['password'])) {
     if ($new_pass == $confirm_pass) {
@@ -129,7 +140,7 @@ if (isset($_POST['simpan_password'])) {
         $_SESSION['error'] = "Error: " . addslashes($stmt->error);
       }
       $stmt->close();
-    } else{
+    } else {
       $_SESSION['error'] = "Kata sandi baru dengan konfirmasi tidak sama, mohon cek kembali!";
     }
   } else {
@@ -231,7 +242,7 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
         </nav>
         <div class="mt-auto">
           <form method="POST">
-            <button type="submit" name="logout" class="btn btn-outline-danger w-100">
+            <button type="submit" name="logout" class="btn btn-outline-danger mb-5 w-100">
               <i class="bi bi-box-arrow-right"></i> Logout
             </button>
           </form>
@@ -360,30 +371,6 @@ $_SESSION['foto_profil'] = $user['foto_profil'];
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="my_js/main.js"></script>
-  <script>
-    setTimeout(function() {
-      const alertBox = document.querySelector('.alert');
-      if (alertBox) {
-        alertBox.classList.add('fade');
-        alertBox.classList.remove('show');
-
-        // Hapus elemen dari DOM setelah efek selesai (opsional)
-        setTimeout(() => alertBox.remove(), 500);
-      }
-    }, 2000); // 2000ms = 2 detik
-
-    document.getElementById('fotoProfil').addEventListener('change', function(e) {
-      const fileName = e.target.files[0]?.name || 'Tidak ada file yang dipilih';
-      document.getElementById('fileName').textContent = fileName;
-    });
-    // Toggle sidebar on mobile       
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("overlay");
-      sidebar.classList.toggle("show");
-      overlay.classList.toggle("show");
-    }
-  </script>
 </body>
 
 </html>

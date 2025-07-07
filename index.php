@@ -23,52 +23,57 @@ if (isset($_POST['logout'])) {
 </head>
 
 <body>
+  <?php if (isset($_SESSION['error'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Terjadi Error!",
+          text: <?= json_encode($_SESSION['error']) ?>,
+          icon: "error"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['error']); ?>
+  <?php endif; ?>
+
+  <?php if (isset($_SESSION['success'])): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: "Berhasil",
+          text: <?= json_encode($_SESSION['success']) ?>,
+          icon: "success"
+        });
+      });
+    </script>
+    <?php unset($_SESSION['success']); ?>
+  <?php endif; ?>
   <header>
     <!-- Navbar Kriuk Ayu -->
     <nav class="navbar navbar-expand-lg navbar-kriuk fixed-top" id="navbar-kriukAyu">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">
-          <img src="assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" width="auto" height="50" class="d-inline-block align-text-top"></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-          <ul class="navbar-nav nav-underline mx-auto">
-            <li class="nav-item">
-              <a class="nav-scroll active" aria-current="page" href="#home">Beranda</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-scroll" href="#product">Produk</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-scroll" href="#cara-pesan">Cara Pesan</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-scroll" href="#review">Testimoni</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-scroll" href="#tentang">Tentang Kami</a>
-            </li>
-          </ul>
-          <?php if (!$isLoggedIn): ?>
-            <div class="d-flex gap-2 ms-auto">
-              <button class="btn btn-kuning" onclick="location.href='register.php'">Pesan Sekarang!</button>
-              <button class="btn btn-merah" onclick="location.href='login.php'">Masuk</button>
-            </div>
-          <?php else: ?>
-            <div class="dropdown py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1" id="userProfile">
+      <div class="container">
+
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
+          <img src="assets/LogoKriukAyu.png" alt="Logo Kriuk Ayu" height="50">
+        </a>
+
+        <!-- Hamburger & Profil di kanan -->
+        <div class="d-flex align-items-center ms-auto gap-3 order-lg-3">
+          <!-- Foto Profil -->
+          <?php if ($isLoggedIn): ?>
+            <div class="dropdown" id="userProfile">
               <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src=<?= $_SESSION['foto_profil'] ?> alt="Foto Profil" width="28" height="28" class="rounded-circle">
+                <img src="<?= $_SESSION['foto_profil'] ?>" alt="Foto Profil" width="28" height="28" class="rounded-circle">
                 <span class="d-none d-sm-inline mx-1"><?= $_SESSION['nama_user'] ?? 'Pengguna' ?></span>
               </a>
-              <ul class="dropdown-menu dropdown-menu-light text-small shadow" aria-labelledby="dropdownUser1">
-                <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person" style="padding-right: 10px;"></i>Lihat Profil</a></li>
-                <li><a class="dropdown-item" href="dashboard.php"><i class="bi bi-speedometer" style="padding-right: 10px;"></i>Dashboard</a></li>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-light text-small shadow" aria-labelledby="dropdownUser1">
+                <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person"></i> Lihat Profil</a></li>
+                <li><a class="dropdown-item" href="dashboard.php"><i class="bi bi-speedometer"></i> Dashboard</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
                 <li>
-                  <!-- Form Logout dalam Dropdown -->
                   <form method="post" class="px-3 py-2">
                     <button type="submit" name="logout" class="btn btn-danger w-100">
                       <i class="bi bi-box-arrow-right"></i> Logout
@@ -77,11 +82,34 @@ if (isset($_POST['logout'])) {
                 </li>
               </ul>
             </div>
+          <?php else: ?>
+            <div class="d-flex gap-2 ms-auto">
+              <button class="btn btn-kuning" onclick="location.href='register.php'">Pesan Sekarang!</button>
+              <button class="btn btn-merah" onclick="location.href='login.php'">Masuk</button>
+            </div>
           <?php endif; ?>
+
+          <!-- Tombol Hamburger -->
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
         </div>
-      </div>
+
+        <!-- Menu navigasi -->
+        <div class="collapse navbar-collapse justify-content-center order-lg-2" id="navbarNavDropdown">
+          <ul class="navbar-nav nav-underline">
+            <li class="nav-item"><a class="nav-scroll active" href="#home">Beranda</a></li>
+            <li class="nav-item"><a class="nav-scroll" href="#product">Produk</a></li>
+            <li class="nav-item"><a class="nav-scroll" href="#cara-pesan">Cara Pesan</a></li>
+            <li class="nav-item"><a class="nav-scroll" href="#review">Testimoni</a></li>
+            <li class="nav-item"><a class="nav-scroll" href="#tentang">Tentang Kami</a></li>
+          </ul>
+        </div>
+
       </div>
     </nav>
+
   </header>
   <div data-bs-spy="scroll" data-bs-target="#navbar-kriukAyu" data-bs-smooth-scroll="true" class="scrollspy-example-2" tabindex="0">
     <section id="home">
@@ -323,6 +351,7 @@ if (isset($_POST['logout'])) {
       </div>
   </div>
   </section>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 <!-- Footer -->
